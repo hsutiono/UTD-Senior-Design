@@ -2,11 +2,27 @@
     ViewBag.Title = "Home Page";
 }
 
+@model TestPage.Models.Team3
+
 <div class="jumbotron">
-    <h1>Test Page</h1>
-    <!--<p class="lead">This is the only page we will work with. Ignore Others</p>-->
-    <!--<p><a href="http://google.com" class="btn btn-primary btn-lg">This Leads To Google</a></p>-->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <h2>Test Page</h2>
+                @using (Html.BeginForm("SendButton", "Home", FormMethod.Post))
+                {
+                    @Html.TextAreaFor((t => t.Message), new { @class="form-control", @placeholder="Enter message"})
+                    @Html.TextBoxFor((m => m.Number), new { @class="form-control", @placeholder="Enter number"})
+                    <input type="submit" value="Send" class="btn btn-primary" />
+                }
+            </div>
+        </div>
+    </div>   
+
+
+    <!--
     <p><a onclick="location.href='@Url.Action("SendButton","Home","Index")'" class="btn btn-primary btn-lg">This is Our Test Button</a></p>
+    -->
 </div>
 
 <div class="row">
