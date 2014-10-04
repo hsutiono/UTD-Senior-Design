@@ -6,6 +6,8 @@ using System.Web.Mvc;
 using Twilio;
 using TestPage.Models;
 using System.Web.Mvc.Html;
+using RestSharp;
+using System.Net;
 
 namespace TestPage.Controllers
 {
@@ -31,6 +33,17 @@ namespace TestPage.Controllers
                 counter++;
             } 
 
+            return View();
+        }
+
+        public ActionResult Vivify()
+        {
+            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            var client = new RestClient("https://demoutdesign.dev.vivifyhealth.com/api/PatientSurvey");
+            var request = new RestRequest(Method.GET);
+            request.AddParameter("authtoken", "26881576-3F9B-4F97-B7F7-91532DE1586A", ParameterType.QueryString);
+            request.AddParameter("PatientId", "5", ParameterType.QueryString);
+            ViewBag.response = ((PatientSurvey)client.Execute<List<PatientSurvey>>(request).Data[0]).Name;
             return View();
         }
 
