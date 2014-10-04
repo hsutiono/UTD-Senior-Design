@@ -17,16 +17,18 @@ namespace TestPage.Controllers
         {
             // Find your Account Sid and Auth Token at twilio.com/user/account 
             var twilio = new TwilioRestClient(AccountSid, AuthToken);
-            ViewBag.messagebuffer = "";
             // Build the parameters 
             var options = new MessageListRequest();
-            options.To = "+15165214013";
-            //options.DateSent = DateTime.Parse("2014-10-04");
+            options.To = "+17743077070";
+            //options.DateSent = DateTime.Today;
 
             var messages = twilio.ListMessages(options);
+            int counter = 0;
+            ViewBag.messagebuffer = new string[int.Parse(messages.Total.ToString())];
             foreach (var message in messages.Messages)
             {
-                ViewBag.messagebuffer += message.Body;
+                ViewBag.messagebuffer[counter]="Recieved from "+message.From+" at "+message.DateSent+": "+message.Body;
+                counter++;
             } 
 
             return View();
