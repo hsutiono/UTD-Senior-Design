@@ -13,6 +13,7 @@
                 {
                     @Html.TextAreaFor((t => t.Message), new { @class="form-control", @placeholder="Enter message"})
                     @Html.TextBoxFor((m => m.Number), new { @class="form-control", @placeholder="Enter number"})
+                    @Html.PasswordFor((p => p.Pass), new { @class = "form-control", @placeholder = "Enter passcode" })
                     <input type="submit" value="Send" class="btn btn-primary" />
                 }
             </div>

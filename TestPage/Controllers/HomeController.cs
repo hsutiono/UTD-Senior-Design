@@ -38,6 +38,10 @@ namespace TestPage.Controllers
         {
             return View();
         }
+        public ActionResult Error()
+        {
+            return View();
+        }
 
         [HttpPost]
         public ActionResult SendButton(Team3 model)
@@ -46,6 +50,10 @@ namespace TestPage.Controllers
 
             var number = model.Number;
             var message = model.Message;
+            var pass = model.Pass;
+            if(pass != "1111")
+                return View("Error");
+
             if(number.Substring(0,2) != "+1")
             {
                 number = "+1" + number;

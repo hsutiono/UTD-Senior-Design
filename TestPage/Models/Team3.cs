@@ -9,6 +9,7 @@ namespace TestPage.Models
     {
         public string Number { get; set; }
         public string Message { get; set; }
+        public string Pass { get; set; }
         //public string Name { get; set; }
     }
 }
