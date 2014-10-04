@@ -11,8 +11,24 @@ namespace TestPage.Controllers
 {
     public class HomeController : Controller
     {
+        public static string AccountSid = "AC7a6db27538ba8ed863c14e825beb35f4";
+        public static string AuthToken = "56cb022777274d5e98fdeed9523987a7";
         public ActionResult Index()
         {
+            // Find your Account Sid and Auth Token at twilio.com/user/account 
+            var twilio = new TwilioRestClient(AccountSid, AuthToken);
+            ViewBag.messagebuffer = "";
+            // Build the parameters 
+            var options = new MessageListRequest();
+            options.To = "+15165214013";
+            //options.DateSent = DateTime.Parse("2014-10-04");
+
+            var messages = twilio.ListMessages(options);
+            foreach (var message in messages.Messages)
+            {
+                ViewBag.messagebuffer += message.Body;
+            } 
+
             return View();
         }
 
@@ -24,8 +40,6 @@ namespace TestPage.Controllers
         [HttpPost]
         public ActionResult SendButton(Team3 model)
         {
-            string AccountSid = "AC7a6db27538ba8ed863c14e825beb35f4";
-            string AuthToken = "56cb022777274d5e98fdeed9523987a7";
             var twilio = new TwilioRestClient(AccountSid, AuthToken);
 
             var number = model.Number;
