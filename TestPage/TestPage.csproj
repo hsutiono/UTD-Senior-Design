@@ -218,6 +218,7 @@
     <Content Include="Views\Home\Success.cshtml" />
     <Content Include="Views\Home\Error.cshtml" />
     <Content Include="Views\Home\Vivify.cshtml" />
+    <Content Include="Views\Home\Received.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -17,6 +17,11 @@ namespace TestPage.Controllers
         public static string AuthToken = "56cb022777274d5e98fdeed9523987a7";
         public ActionResult Index()
         {
+            return View();
+        }
+
+        public ActionResult Received()
+        {
             // Find your Account Sid and Auth Token at twilio.com/user/account 
             var twilio = new TwilioRestClient(AccountSid, AuthToken);
             // Build the parameters 
@@ -29,7 +34,7 @@ namespace TestPage.Controllers
             ViewBag.messagebuffer = new string[int.Parse(messages.Total.ToString())];
             foreach (var message in messages.Messages)
             {
-                ViewBag.messagebuffer[counter]="Recieved from "+message.From+" at "+message.DateSent+": "+message.Body;
+                ViewBag.messagebuffer[counter] = "Recieved from " + message.From + " at " + message.DateSent + ": " + message.Body;
                 counter++;
             } 
 
