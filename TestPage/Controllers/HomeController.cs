@@ -48,9 +48,11 @@ namespace TestPage.Controllers
             var request = new RestRequest(Method.GET);
             request.AddParameter("authtoken", "26881576-3F9B-4F97-B7F7-91532DE1586A", ParameterType.QueryString);
             request.AddParameter("PatientId", "5", ParameterType.QueryString);
-            //ViewBag.response = ((PatientSurvey)client.Execute<List<PatientSurvey>>(request).Data[0]).Name;
+            //ViewBag.response = ((PatientSurvey)client.Execute<List<PatientSurvey>>(request).Data[1]).PatientSurveyQuestions;
+            var response = client.Execute<List<PatientSurvey>>(request).Data;
+            ViewBag.response = response;
 
-            ViewBag.response = client.Execute<List<PatientSurvey>>(request).Data;
+            //ViewBag.response = response[1].PatientSurveyQuestions[0];
 
             return View();
         }

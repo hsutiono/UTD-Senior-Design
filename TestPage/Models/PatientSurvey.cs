@@ -15,12 +15,20 @@ namespace TestPage.Models
         public string DeletedDateTime_UTC { get; set; }
         public int DeletedBy_Id { get; set; }
         public List<PatientSurveyQuestion> PatientSurveyQuestions { get; set; }
+        public List<PatientSurveySchedule> PatientSurveyScheduleModel { get; set; }
         public string ToString()
         {
-            string s = this.Name+" ";
-            foreach(PatientSurveyQuestion i in PatientSurveyQuestions)
+            PatientSurveyQuestion[] k = PatientSurveyQuestions.ToArray<PatientSurveyQuestion>();
+            Array.Sort(k, delegate(PatientSurveyQuestion user1, PatientSurveyQuestion user2)
             {
-                s += i.ToString() + " ";
+                return user1.PatientSurveyQuestionId.CompareTo(user2.PatientSurveyQuestionId);
+            });
+            
+            
+            string s = "("+this.Name+") ";
+            foreach(PatientSurveyQuestion i in k)
+            {
+                s += i.PatientSurveyQuestionId+": "+i.ToString() + " ";
             }
             return s;
         }
@@ -42,19 +50,23 @@ namespace TestPage.Models
         public int MaxAlertSeverityLevel { get; set; }
         public List<PatientSurveyOption> PatientSurveyOptions { get; set; }
         public List<PatientSurveyQuestionText> PatientSurveyQuestionTexts { get; set; }
+        //public List<string> surveyQuestion { get; set; }
         public string ParentSurveyOption { get; set; }//note:not sure what type
         public string ToString()
         {
-            string s = this.SurveyQuestionTypeName+" {";
+            string s = "";//this.SurveyQuestionTypeName;
+                
+            foreach (PatientSurveyQuestionText i in PatientSurveyQuestionTexts)
+            {
+                s += i.ToString() + " ";
+            }
+                
+            s+=" {";
             foreach (PatientSurveyOption i in PatientSurveyOptions)
             {
                 s+=i.ToString()+" ";
             }
             s += "} ";
-            foreach (PatientSurveyQuestionText i in PatientSurveyQuestionTexts)
-            {
-                s += i.ToString() + " ";
-            }
             return s;
         }
     }
@@ -80,7 +92,7 @@ namespace TestPage.Models
             string s = this.OptionName + " <";
             foreach (PatientSurveyOptionText i in PatientSurveyOptionTexts)
             {
-                s += count + ":" + i.ToString() + " ";
+                s += i.ToString() + " ";
             }
             s += "> ";
             foreach (PatientSurveyQuestion i in PatientSurveyQuestions)
@@ -123,5 +135,34 @@ namespace TestPage.Models
         {
             return Text;
         }
+    }
+    public class PatientSurveySchedule
+    {
+        public int PatientSurveyScheduleId { get; set; }
+        public int PatientSurveyId { get; set; }
+        public bool IsOneTime { get; set; }
+        public string StartDate { get; set; }
+        public int DaysAfterProgramStartDate { get; set; }
+        public int DaysBeforeProgramEndDate { get; set; }
+        public ActiveDaySet ActiveDays{ get; set; }
+        public string SchedulePromptTimeOfDay { get; set; }
+        public int StartMinutesBeforePrompt { get; set; }
+        public int LateMinutesAfterPrompt { get; set; }
+        public int EndMinutesAfterPrompt { get; set; }
+        public string CreatedDateTime_UTC { get; set; }
+        public int CreatedBy_Id { get; set; }
+        public string DeletedDateTime_UTC { get; set; }
+        public int DeletedBy_Id { get; set; }
+    }
+    public class ActiveDaySet
+    {
+        public bool IsSunday { get; set; }
+        public bool IsMonday { get; set; }
+        public bool IsTuesday { get; set; }
+        public bool IsWednesday { get; set; }
+        public bool IsThursday { get; set; }
+        public bool IsFriday { get; set; }
+        public bool IsSaturday { get; set; }
+
     }
 }
