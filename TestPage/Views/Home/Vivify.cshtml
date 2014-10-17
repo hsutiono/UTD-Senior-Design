@@ -3,5 +3,7 @@
     ViewBag.Title = "Vivify";
 }
 <h2>Vivify</h2>
-@ViewBag.response
-
+       @foreach (var g in ViewBag.response)
+       {
+           @g.ToString()<br><br>
+       }

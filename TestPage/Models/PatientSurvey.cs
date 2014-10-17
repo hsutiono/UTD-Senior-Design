@@ -15,6 +15,15 @@ namespace TestPage.Models
         public string DeletedDateTime_UTC { get; set; }
         public int DeletedBy_Id { get; set; }
         public List<PatientSurveyQuestion> PatientSurveyQuestions { get; set; }
+        public string ToString()
+        {
+            string s = this.Name+" ";
+            foreach(PatientSurveyQuestion i in PatientSurveyQuestions)
+            {
+                s += i.ToString() + " ";
+            }
+            return s;
+        }
     }
     public class PatientSurveyQuestion
     {
@@ -34,6 +43,20 @@ namespace TestPage.Models
         public List<PatientSurveyOption> PatientSurveyOptions { get; set; }
         public List<PatientSurveyQuestionText> PatientSurveyQuestionTexts { get; set; }
         public string ParentSurveyOption { get; set; }//note:not sure what type
+        public string ToString()
+        {
+            string s = this.SurveyQuestionTypeName+" {";
+            foreach (PatientSurveyOption i in PatientSurveyOptions)
+            {
+                s+=i.ToString()+" ";
+            }
+            s += "} ";
+            foreach (PatientSurveyQuestionText i in PatientSurveyQuestionTexts)
+            {
+                s += i.ToString() + " ";
+            }
+            return s;
+        }
     }
     public class PatientSurveyOption
     {
@@ -52,6 +75,20 @@ namespace TestPage.Models
         public List<PatientSurveyOptionText> PatientSurveyOptionTexts { get; set; }
         public List<PatientSurveyQuestion> PatientSurveyQuestions { get; set; }
         public string SurveyVideo { get; set; }//not sure type
+        public string ToString()
+        {
+            string s = this.OptionName + " <";
+            foreach (PatientSurveyOptionText i in PatientSurveyOptionTexts)
+            {
+                s += count + ":" + i.ToString() + " ";
+            }
+            s += "> ";
+            foreach (PatientSurveyQuestion i in PatientSurveyQuestions)
+            {
+                s += i.ToString() + " ";
+            }
+            return s;
+        }
     }
     public class PatientSurveyQuestionText
     {
@@ -65,6 +102,10 @@ namespace TestPage.Models
         public int CreatedBy_ID { get; set; }
         public string DeletedDateTime_UTC { get; set; }
         public int DeletedBy_Id { get; set; }
+        public string ToString()
+        {
+            return Text;
+        }
     }
     public class PatientSurveyOptionText
     {
@@ -78,5 +119,9 @@ namespace TestPage.Models
         public int CreatedBy_ID { get; set; }
         public string DeletedDateTime_UTC { get; set; }
         public int DeletedBy_Id { get; set; }
+        public string ToString()
+        {
+            return Text;
+        }
     }
 }
