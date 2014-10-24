@@ -16,7 +16,7 @@ namespace TestPage.Models
         public int DeletedBy_Id { get; set; }
         public List<PatientSurveyQuestion> PatientSurveyQuestions { get; set; }
         public List<PatientSurveySchedule> PatientSurveyScheduleModel { get; set; }
-        public string ToString()
+        public override string ToString()
         {
             PatientSurveyQuestion[] k = PatientSurveyQuestions.ToArray<PatientSurveyQuestion>();
             Array.Sort(k, delegate(PatientSurveyQuestion user1, PatientSurveyQuestion user2)
@@ -52,7 +52,7 @@ namespace TestPage.Models
         public List<PatientSurveyQuestionText> PatientSurveyQuestionTexts { get; set; }
         //public List<string> surveyQuestion { get; set; }
         public string ParentSurveyOption { get; set; }//note:not sure what type
-        public string ToString()
+        public string GetQuestions()
         {
             string s = "";//this.SurveyQuestionTypeName;
                 
@@ -87,7 +87,7 @@ namespace TestPage.Models
         public List<PatientSurveyOptionText> PatientSurveyOptionTexts { get; set; }
         public List<PatientSurveyQuestion> PatientSurveyQuestions { get; set; }
         public string SurveyVideo { get; set; }//not sure type
-        public string ToString()
+        public override string ToString()
         {
             string s = this.OptionName + " <";
             foreach (PatientSurveyOptionText i in PatientSurveyOptionTexts)
@@ -114,7 +114,7 @@ namespace TestPage.Models
         public int CreatedBy_ID { get; set; }
         public string DeletedDateTime_UTC { get; set; }
         public int DeletedBy_Id { get; set; }
-        public string ToString()
+        public override string ToString()
         {
             return Text;
         }
@@ -131,7 +131,7 @@ namespace TestPage.Models
         public int CreatedBy_ID { get; set; }
         public string DeletedDateTime_UTC { get; set; }
         public int DeletedBy_Id { get; set; }
-        public string ToString()
+        public override string ToString()
         {
             return Text;
         }

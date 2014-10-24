@@ -43,6 +43,8 @@ namespace TestPage.Controllers
 
         public ActionResult Vivify()
         {
+            List<string> listOfQuestion = new List<string>();
+
             ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             var client = new RestClient("https://demoutdesign.dev.vivifyhealth.com/api/PatientSurvey");
             var request = new RestRequest(Method.GET);
@@ -50,9 +52,21 @@ namespace TestPage.Controllers
             request.AddParameter("PatientId", "5", ParameterType.QueryString);
             //ViewBag.response = ((PatientSurvey)client.Execute<List<PatientSurvey>>(request).Data[1]).PatientSurveyQuestions;
             var response = client.Execute<List<PatientSurvey>>(request).Data;
-            ViewBag.response = response;
 
-            //ViewBag.response = response[1].PatientSurveyQuestions[0];
+
+            //This part parse the questions
+
+            foreach (var properties in response)
+            {
+                foreach (var question in properties.PatientSurveyQuestions)
+                {
+                    listOfQuestion.Add(question.GetQuestions());
+                }
+            }
+
+            //ViewBag.response = response;
+
+            ViewBag.response = listOfQuestion;
 
             return View();
         }
