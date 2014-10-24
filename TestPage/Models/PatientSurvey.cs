@@ -50,7 +50,6 @@ namespace TestPage.Models
         public int MaxAlertSeverityLevel { get; set; }
         public List<PatientSurveyOption> PatientSurveyOptions { get; set; }
         public List<PatientSurveyQuestionText> PatientSurveyQuestionTexts { get; set; }
-        //public List<string> surveyQuestion { get; set; }
         public string ParentSurveyOption { get; set; }//note:not sure what type
         public string GetQuestions()
         {
@@ -95,10 +94,14 @@ namespace TestPage.Models
                 s += i.ToString() + " ";
             }
             s += "> ";
-            foreach (PatientSurveyQuestion i in PatientSurveyQuestions)
-            {
-                s += i.ToString() + " ";
-            }
+
+
+            //foreach (PatientSurveyQuestion i in PatientSurveyQuestions)
+            //{
+            //    s += i.ToString() + " ";
+            //}
+
+
             return s;
         }
     }

@@ -26,8 +26,8 @@ namespace TestPage.Controllers
             var twilio = new TwilioRestClient(AccountSid, AuthToken);
             // Build the parameters 
             var options = new MessageListRequest();
-            options.To = "+17743077070";
-            //options.DateSent = DateTime.Today;
+            //options.To = "+17743077070";
+            options.DateSent = DateTime.Today;
 
             var messages = twilio.ListMessages(options);
             int counter = 0;
@@ -50,8 +50,31 @@ namespace TestPage.Controllers
             var request = new RestRequest(Method.GET);
             request.AddParameter("authtoken", "26881576-3F9B-4F97-B7F7-91532DE1586A", ParameterType.QueryString);
             request.AddParameter("PatientId", "5", ParameterType.QueryString);
-            //ViewBag.response = ((PatientSurvey)client.Execute<List<PatientSurvey>>(request).Data[1]).PatientSurveyQuestions;
             var response = client.Execute<List<PatientSurvey>>(request).Data;
+
+
+            //////
+            // Find your Account Sid and Auth Token at twilio.com/user/account 
+            var twilio = new TwilioRestClient(AccountSid, AuthToken);
+            // Build the parameters 
+            var options = new MessageListRequest();
+            //options.To = "+17743077070";
+            options.To = getPatientNumber();
+            options.DateSent = DateTime.Today;
+
+            var patientRecieved = twilio.ListMessages(options);
+            
+            options.To = "+17743077070";
+            options.From = getPatientNumber();
+            var patientSent = twilio.ListMessages(options);
+            /////
+            /*int counter = 0;
+            ViewBag.messagebuffer = new string[int.Parse(patientSent.Total.ToString())];
+            foreach (var message in patientSent.Messages)
+            {
+                ViewBag.messagebuffer[counter] = "Recieved from " + message.From + " at " + message.DateSent + ": " + message.Body;
+                counter++;
+            }*/
 
 
             //This part parse the questions
@@ -68,7 +91,47 @@ namespace TestPage.Controllers
 
             ViewBag.response = listOfQuestion;
 
+            var ps1 = patientSent.Messages.First();
+            var pr1 = patientRecieved.Messages.First();
+            if (pr1.Direction.Equals("outbound-reply"))
+                pr1 = patientRecieved.Messages.ElementAt(1);
+            if (ps1.DateSent.CompareTo(pr1.DateSent) < 0)
+            {
+                ViewBag.sent = "SENT";
+
+                foreach (string questionToSend in listOfQuestion)
+                {
+                    bool said = false;
+                    int counter2 = 0;
+                    foreach (var message in patientRecieved.Messages)
+                    {
+                        if (message.Body.Equals(questionToSend))
+                        {
+                            said = true;
+                            break;
+                        }
+                        counter2++;
+                    }
+                    if (!said)
+                    {
+                        sendQuestion(questionToSend, getPatientNumber());
+                    }
+                }
+            }
+            else ViewBag.sent = "Nothing Sent";
             return View();
+        }
+
+        private void sendQuestion(string questionToSend, string number)
+        {
+            var twilio = new TwilioRestClient(AccountSid, AuthToken);
+
+            var send = twilio.SendMessage("+17743077070", number, questionToSend);
+        }
+
+        private string getPatientNumber()
+        {
+            return "+12817813990";
         }
 
         public ActionResult Success()
@@ -88,10 +151,10 @@ namespace TestPage.Controllers
             var number = model.Number;
             var message = model.Message;
             var pass = model.Pass;
-            if(pass != "1111")
+            if (pass != "1111")
                 return View("Error");
 
-            if(number.Substring(0,2) != "+1")
+            if (number.Substring(0, 2) != "+1")
             {
                 number = "+1" + number;
             }
@@ -100,6 +163,8 @@ namespace TestPage.Controllers
 
             return View("Success");
         }
+
+        #region no need of this
 
         //public ActionResult SendButton()
         //{
@@ -124,7 +189,6 @@ namespace TestPage.Controllers
         //    return View("Success");
         //}
 
-        #region We Don't Need This at All, Ignore This
         //public ActionResult About()
         //{
         //    ViewBag.Message = "Your application description page.";
