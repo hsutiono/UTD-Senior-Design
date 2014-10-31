@@ -1,7 +1,9 @@
-﻿@{
+﻿
+@{
     Layout = "";
     //ViewBag.Title = "ResponseCount";
     int counter = 0;
+    string message = Request["Body"];
     
     // get the session varible if it exists    
     if (Session["counter"]!=null) { counter=(int)Session["counter"]; }
@@ -35,7 +37,7 @@
 <Response>
     <Message>
     <Body>
-        @name has messaged @Request["To"] @counter times
+        @name has messaged @Request["To"] @counter times with message @message
     </Body>
     </Message>
 </Response>
