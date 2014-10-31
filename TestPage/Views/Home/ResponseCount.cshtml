@@ -1,36 +1,32 @@
-﻿
-@{
+﻿@{
     Layout = "";
     //ViewBag.Title = "ResponseCount";
     int counter = 0;
-    string message = Request["Body"];
+    int questionNumber = 0;
+    
     
     // get the session varible if it exists    
-    if (Session["counter"]!=null) { counter=(int)Session["counter"]; }
-     
+    if (Session["counter"]!=null) 
+    { 
+        counter=(int)Session["counter"]; 
+    }
+    if (Session["questionNumber"] != null)
+    {
+        questionNumber = (int)Session["questionNumber"];
+    }
+
+    string name = Request["From"];
+    string message = ((TestPage.Controllers.HomeController)this.ViewContext.Controller).SendQuestion(questionNumber);
+    
     // increment it
     counter++;
+    questionNumber++;
   
     // save it
     Session["counter"] = counter;
+    Session["questionNumber"] = questionNumber;  
  
-    // make an associative array of senders we know, indexed by phone number
-    /*var people = new Dictionary<string,string>() { 
-        {"+14158675309","Curious George"},
-        {"+14158675310","Boots"},
-        {"+14158675311","Virgil"}
-    };*/
-     
-    // if the sender is known, then greet them by name
-    // otherwise, consider them just another monkey
-    string name = Request["From"];
-    /*if (!string.IsNullOrEmpty(Request["From"]))
-    {
-        name = people[Request["From"]];
-    }*/
-     
-    // output the counter response
-    //Response.ContentType = "text/xml";
+    
 }
 
 <?xml version="1.0" encoding="UTF-8" ?>

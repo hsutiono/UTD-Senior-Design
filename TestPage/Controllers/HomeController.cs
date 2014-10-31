@@ -93,38 +93,38 @@ namespace TestPage.Controllers
 
             //ViewBag.response = response;
 
-            ViewBag.response = listOfQuestion;
-            if (patientSent.Messages.Count > 0 && patientRecieved.Messages.Count > 0)
-            {
-                var ps1 = patientSent.Messages.First();
-                var pr1 = patientRecieved.Messages.First();
-                if (pr1.Direction.Equals("outbound-reply"))
-                    pr1 = patientRecieved.Messages.ElementAt(1);
-                if (ps1.DateSent.CompareTo(pr1.DateSent) < 0)
-                {
-                    ViewBag.sent = "SENT";
+            //ViewBag.response = listOfQuestion;
+            //if (patientSent.Messages.Count > 0 && patientRecieved.Messages.Count > 0)
+            //{
+            //    var ps1 = patientSent.Messages.First();
+            //    var pr1 = patientRecieved.Messages.First();
+            //    if (pr1.Direction.Equals("outbound-reply"))
+            //        pr1 = patientRecieved.Messages.ElementAt(1);
+            //    if (ps1.DateSent.CompareTo(pr1.DateSent) < 0)
+            //    {
+            //        ViewBag.sent = "SENT";
 
-                    foreach (string questionToSend in listOfQuestion)
-                    {
-                        bool said = false;
-                        int counter2 = 0;
-                        foreach (var message in patientRecieved.Messages)
-                        {
-                            if (message.Body.Equals(questionToSend))
-                            {
-                                said = true;
-                                break;
-                            }
-                            counter2++;
-                        }
-                        if (!said)
-                        {
-                            sendQuestion(questionToSend, getPatientNumber());
-                        }
-                    }
-                }
-                else ViewBag.sent = "Nothing Sent";
-            }
+            //        foreach (string questionToSend in listOfQuestion)
+            //        {
+            //            bool said = false;
+            //            int counter2 = 0;
+            //            foreach (var message in patientRecieved.Messages)
+            //            {
+            //                if (message.Body.Equals(questionToSend))
+            //                {
+            //                    said = true;
+            //                    break;
+            //                }
+            //                counter2++;
+            //            }
+            //            if (!said)
+            //            {
+            //                sendQuestion(questionToSend, getPatientNumber());
+            //            }
+            //        }
+            //    }
+            //    else ViewBag.sent = "Nothing Sent";
+            //}
             return View();
         }
 
@@ -133,6 +133,47 @@ namespace TestPage.Controllers
             return View();
         }
 
+
+        public string SendQuestion(int counter)
+        {
+            List<string> listOfQuestion = new List<string>();
+
+            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            var client = new RestClient("https://demoutdesign.dev.vivifyhealth.com/api/PatientSurvey");
+            var request = new RestRequest(Method.GET);
+            request.AddParameter("authtoken", "26881576-3F9B-4F97-B7F7-91532DE1586A", ParameterType.QueryString);
+            request.AddParameter("PatientId", "5", ParameterType.QueryString);
+            var response = client.Execute<List<PatientSurvey>>(request).Data;
+
+
+            //////
+            // Find your Account Sid and Auth Token at twilio.com/user/account 
+            var twilio = new TwilioRestClient(AccountSid, AuthToken);
+            // Build the parameters 
+            var options = new MessageListRequest();
+            //options.To = "+17743077070";
+            options.To = getPatientNumber();
+            options.DateSent = DateTime.Today;
+
+            var patientRecieved = twilio.ListMessages(options);
+
+            options.To = "+17743077070";
+            options.From = getPatientNumber();
+            var patientSent = twilio.ListMessages(options);
+            
+
+            foreach (var properties in response)
+            {
+                foreach (var question in properties.PatientSurveyQuestions)
+                {
+                    listOfQuestion.Add(question.PatientSurveyQuestionTexts.First().Text);
+                }
+            }
+
+            string questionToSend = listOfQuestion[counter];
+
+            return questionToSend;
+        }
         private void sendQuestion(string questionToSend, string number)
         {
             var twilio = new TwilioRestClient(AccountSid, AuthToken);
