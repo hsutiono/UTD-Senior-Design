@@ -176,7 +176,6 @@
     </Compile>
     <Compile Include="Models\PatientResponse.cs" />
     <Compile Include="Models\PatientSurvey.cs" />
-    <Compile Include="Models\PatientSurveyModels.cs" />
     <Compile Include="Models\Team3.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -221,7 +220,6 @@
     <Content Include="Views\Home\Error.cshtml" />
     <Content Include="Views\Home\Vivify.cshtml" />
     <Content Include="Views\Home\Received.cshtml" />
-    <Content Include="Views\Home\ResponseCount.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
