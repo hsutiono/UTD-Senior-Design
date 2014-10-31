@@ -1,5 +1,6 @@
 ﻿@{
-    ViewBag.Title = "ResponseCount";
+    Layout = "";
+    //ViewBag.Title = "ResponseCount";
     int counter = 0;
     
     // get the session varible if it exists    
@@ -27,14 +28,14 @@
     }*/
      
     // output the counter response
-    Response.ContentType = "text/xml";
+    //Response.ContentType = "text/xml";
 }
 
 <?xml version="1.0" encoding="UTF-8" ?>
-<response>
+<Response>
     <Message>
     <Body>
         @name has messaged @Request["To"] @counter times
     </Body>
     </Message>
-</response>
+</Response>
