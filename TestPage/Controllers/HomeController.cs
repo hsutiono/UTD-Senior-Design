@@ -9,6 +9,8 @@ using System.Web.Mvc.Html;
 using RestSharp;
 using System.Net;
 
+//using Vivify.Platform.Models;
+
 namespace TestPage.Controllers
 {
     public class HomeController : Controller
@@ -83,42 +85,50 @@ namespace TestPage.Controllers
             {
                 foreach (var question in properties.PatientSurveyQuestions)
                 {
-                    listOfQuestion.Add(question.GetQuestions());
+                    listOfQuestion.Add(question.PatientSurveyQuestionTexts.First().Text);
                 }
             }
 
             //ViewBag.response = response;
 
             ViewBag.response = listOfQuestion;
-
-            var ps1 = patientSent.Messages.First();
-            var pr1 = patientRecieved.Messages.First();
-            if (pr1.Direction.Equals("outbound-reply"))
-                pr1 = patientRecieved.Messages.ElementAt(1);
-            if (ps1.DateSent.CompareTo(pr1.DateSent) < 0)
+            if (patientSent.Messages.Count > 0 && patientRecieved.Messages.Count > 0)
             {
-                ViewBag.sent = "SENT";
-
-                foreach (string questionToSend in listOfQuestion)
+                var ps1 = patientSent.Messages.First();
+                var pr1 = patientRecieved.Messages.First();
+                if (pr1.Direction.Equals("outbound-reply"))
+                    pr1 = patientRecieved.Messages.ElementAt(1);
+                if (ps1.DateSent.CompareTo(pr1.DateSent) < 0)
                 {
-                    bool said = false;
-                    int counter2 = 0;
-                    foreach (var message in patientRecieved.Messages)
+                    ViewBag.sent = "SENT";
+
+                    foreach (string questionToSend in listOfQuestion)
                     {
-                        if (message.Body.Equals(questionToSend))
+                        bool said = false;
+                        int counter2 = 0;
+                        foreach (var message in patientRecieved.Messages)
                         {
-                            said = true;
-                            break;
+                            if (message.Body.Equals(questionToSend))
+                            {
+                                said = true;
+                                break;
+                            }
+                            counter2++;
                         }
-                        counter2++;
-                    }
-                    if (!said)
-                    {
-                        sendQuestion(questionToSend, getPatientNumber());
+                        if (!said)
+                        {
+                            sendQuestion(questionToSend, getPatientNumber());
+                        }
                     }
                 }
+                else ViewBag.sent = "Nothing Sent";
             }
-            else ViewBag.sent = "Nothing Sent";
+            return View();
+        }
+
+        public ActionResult ResponseCount()
+        
+        {
             return View();
         }
 
