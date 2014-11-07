@@ -1,0 +1,13 @@
+﻿@{
+    Layout = "";
+    string response = ViewBag.reg.response(Request["From"], Request["To"], Request["Body"]);
+}
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<response>
+    <message>
+        <body>
+            @response
+        </body>
+    </message>
+</response>

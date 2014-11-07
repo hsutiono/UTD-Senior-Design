@@ -171,12 +171,15 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\SurveyController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ActiveRegistry.cs" />
     <Compile Include="Models\PatientResponse.cs" />
     <Compile Include="Models\PatientSurvey.cs" />
     <Compile Include="Models\PatientSurveyModels.cs" />
+    <Compile Include="Models\SurveyInstance.cs" />
     <Compile Include="Models\Team3.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -222,6 +225,8 @@
     <Content Include="Views\Home\Vivify.cshtml" />
     <Content Include="Views\Home\Received.cshtml" />
     <Content Include="Views\Home\ResponseCount.cshtml" />
+    <Content Include="Views\Survey\Index.cshtml" />
+    <Content Include="Views\Survey\TwilioResponse.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
