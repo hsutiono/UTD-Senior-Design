@@ -15,7 +15,7 @@ namespace TestPage.Controllers
 {
     public class SurveyController : Controller
     {
-        ActiveRegistry reg = new ActiveRegistry();
+        public static ActiveRegistry reg = new ActiveRegistry();
         public ActionResult Index()
         {
             ViewBag.reg = reg;

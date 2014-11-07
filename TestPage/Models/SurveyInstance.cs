@@ -16,6 +16,7 @@ namespace TestPage.Models
     public class SurveyInstance
     {
         public static int sequenceType = 1;//1 sorts by sent order. 2 by question number order.
+
         public static string AccountSid = "AC7a6db27538ba8ed863c14e825beb35f4";
         public static string AuthToken = "56cb022777274d5e98fdeed9523987a7";
         public static string server = "+17743077070";
@@ -23,6 +24,7 @@ namespace TestPage.Models
         public string phone;
         //string emergencyContact;
         public int currentQuestion;
+        public DateTime previousContact;
         List<PatientSurvey> surveyData;
         public SurveyInstance(int userID,string phone)
         {
@@ -30,6 +32,7 @@ namespace TestPage.Models
             this.phone = phone;
             currentQuestion = -1;//-1 means prep stage.
             surveyData = null;
+            previousContact = DateTime.Now;
 
             var twilio = new TwilioRestClient(AccountSid, AuthToken);
             var send = twilio.SendMessage(server, phone, "Are you ready to take your survey?");
@@ -76,14 +79,38 @@ namespace TestPage.Models
         }
         /*public PatientSurveyQuestion nextQuestion(PatientSurveyQuestion currentQuestion, string response)
         { }*/
+        public static string getFormattedQuestionText(PatientSurveyQuestion g)
+        {
+            string s = g.PatientSurveyQuestionTexts.First<PatientSurveyQuestionText>().Text + "\n";
+            int i = 1;
+            if(g.PatientSurveyOptions!=null)
+                foreach (PatientSurveyOption option in g.PatientSurveyOptions)
+                {
+                    s += i + ": ";
+                    foreach(PatientSurveyOptionText temp in option.PatientSurveyOptionTexts)
+                    {
+                        s+=temp.Text+" ";
+                    }
+                    s+="\n";
+                    i++;
+                }
+            return s;
+        }
         public string response(string message)
         {
+            DateTime prevprevContact = previousContact;
+            previousContact = DateTime.Now;
+            message = message.ToLower();//
+            if(message.Equals("show"))//debugging
+            {
+                return "User ID:" + userID + " Phone:" + phone + " Current Question:" + currentQuestion;
+            }
             if(currentQuestion<0)
             {
                 if(message.Equals("yes"))
                 {
                     fetchSurvey();
-                    return getQuestion(currentQuestion).PatientSurveyQuestionTexts.First<PatientSurveyQuestionText>().Text;
+                    return getFormattedQuestionText(getQuestion(currentQuestion));
                 }
                 else return "";
             }
@@ -98,7 +125,7 @@ namespace TestPage.Models
                     currentQuestion++;
                     PatientSurveyQuestion current = getQuestion(currentQuestion);
                     if(current == null)return null;
-                    return current.PatientSurveyQuestionTexts.First<PatientSurveyQuestionText>().Text;
+                    return getFormattedQuestionText(current);
                 }
             }
             return "";
