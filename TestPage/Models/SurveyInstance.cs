@@ -112,7 +112,7 @@ namespace TestPage.Models
                     fetchSurvey();
                     return getFormattedQuestionText(getQuestion(currentQuestion));
                 }
-                else return "";
+                else return "Say yes when ready.";
             }
             else
             {
@@ -128,7 +128,7 @@ namespace TestPage.Models
                     return getFormattedQuestionText(current);
                 }
             }
-            return "";
+            return "N/A";
         }
     }
 }
