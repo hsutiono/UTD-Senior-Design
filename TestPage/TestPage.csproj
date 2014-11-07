@@ -170,6 +170,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="Component\SmsResponse.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SurveyController.cs" />
     <Compile Include="Global.asax.cs">
@@ -179,6 +180,7 @@
     <Compile Include="Models\PatientResponse.cs" />
     <Compile Include="Models\PatientSurvey.cs" />
     <Compile Include="Models\PatientSurveyModels.cs" />
+    <Compile Include="Models\ResponseModel.cs" />
     <Compile Include="Models\SurveyInstance.cs" />
     <Compile Include="Models\Team3.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

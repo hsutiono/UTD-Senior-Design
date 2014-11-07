@@ -15,29 +15,34 @@ namespace TestPage.Models
 {
     public class ActiveRegistry
     {
-        public Dictionary<string, SurveyInstance> active;
+        public Dictionary<string, SurveyInstance> Active;
+
         public ActiveRegistry()
         {
-            active = new Dictionary<string, SurveyInstance>();
+            Active = new Dictionary<string, SurveyInstance>();
         }
-        public void addInstance(SurveyInstance s)
+
+        public void AddInstance(int userID,string phone)
         {
-            active.Add(s.phone, s);
+            Active.Add(phone, new SurveyInstance(userID, phone));
         }
-        public void addInstance(int UserID,string Phone)
+
+        public SurveyInstance GetInstance(string Phone)
         {
-            active.Add(Phone, new SurveyInstance(UserID, Phone));
+            return Active[Phone];
         }
+
+
         public string response(string from, string to, string message)
         {
             if(SurveyInstance.server.Equals(to))
             {
-                SurveyInstance t = active[from];
+                SurveyInstance t = Active[from];
                 string temp = t.response(message);
                 if (t != null && temp != null) return temp;
                 if(temp == null)
                 {
-                    active.Remove(from);
+                    Active.Remove(from);
                     return "Survey Over.";
                 }
             }
