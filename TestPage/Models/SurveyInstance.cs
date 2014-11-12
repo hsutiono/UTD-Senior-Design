@@ -155,7 +155,7 @@ namespace TestPage.Models
                     fetchSurvey();
                     return getFormattedQuestionText(getQuestion(CurrentQuestion));
                 }
-                else return "Say yes when ready.";
+                else return "Text yes when ready.";
             }
             else
             {

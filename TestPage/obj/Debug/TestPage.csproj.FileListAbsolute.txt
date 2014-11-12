@@ -460,3 +460,5 @@ C:\Users\gxh111830\Documents\GitHub\UTD-Senior-Design\TestPage\bin\Microsoft.Owi
 C:\Users\gxh111830\Documents\GitHub\UTD-Senior-Design\TestPage\obj\Debug\TestPage.csprojResolveAssemblyReference.cache
 C:\Users\gxh111830\Documents\GitHub\UTD-Senior-Design\TestPage\obj\Debug\TestPage.dll
 C:\Users\gxh111830\Documents\GitHub\UTD-Senior-Design\TestPage\obj\Debug\TestPage.pdb
+C:\Users\shado_000\Source\Repos\UTD-Senior-Design\TestPage\bin\NLog.dll
+C:\Users\shado_000\Source\Repos\UTD-Senior-Design\TestPage\bin\NLog.xml

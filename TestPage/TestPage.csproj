@@ -40,6 +40,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.3.1.0.0\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="RestSharp">
       <HintPath>..\packages\RestSharp.104.4.0\lib\net4\RestSharp.dll</HintPath>
     </Reference>
@@ -170,16 +173,23 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="Component\PatientComponent.cs" />
     <Compile Include="Component\SmsResponse.cs" />
+    <Compile Include="Component\WebHelpComponent.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SurveyController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Integration\IvrClient.cs" />
+    <Compile Include="Integration\IvrDTOs.cs" />
+    <Compile Include="Integration\IvrService.cs" />
     <Compile Include="Models\ActiveRegistry.cs" />
+    <Compile Include="Models\PatientModel.cs" />
+    <Compile Include="Models\PatientObservationModels.cs" />
     <Compile Include="Models\PatientResponse.cs" />
-    <Compile Include="Models\PatientSurvey.cs" />
-    <Compile Include="Models\PatientSurveyModels.cs" />
+    <Compile Include="Models\Unused Models\PatientSurvey.cs" />
+    <Compile Include="Models\Unused Models\PatientSurveyModels.cs" />
     <Compile Include="Models\ResponseModel.cs" />
     <Compile Include="Models\SurveyInstance.cs" />
     <Compile Include="Models\Team3.cs" />
