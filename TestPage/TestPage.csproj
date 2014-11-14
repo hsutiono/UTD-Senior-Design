@@ -176,6 +176,7 @@
     <Compile Include="Component\HandleResponse.cs" />
     <Compile Include="Component\PatientComponent.cs" />
     <Compile Include="Component\SmsResponse.cs" />
+    <Compile Include="Component\SmsValidation.cs" />
     <Compile Include="Component\WebHelpComponent.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SurveyController.cs" />

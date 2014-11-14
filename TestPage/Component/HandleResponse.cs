@@ -10,48 +10,81 @@ namespace TestPage.Component
     {
         public static bool HandleMultiSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
-            throw new NotImplementedException();
+            string multipleResponse = response.ResponseText;
+
+            bool isValid = SmsValidation.validMultilpeSelection(patientSurvey, patientSurvey.CurrentQuestion, multipleResponse);
+
+            return isValid;
         }
 
         public static bool HandleSingleSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
-            throw new NotImplementedException();
+            string singleResponse = response.ResponseText;
+
+            bool isValid = SmsValidation.validSingleSelection(patientSurvey, patientSurvey.CurrentQuestion, singleResponse);
+
+            return isValid;
         }
 
+        #region questionable handling function
         public static bool HandleNumberResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             throw new NotImplementedException();
         }
+        #endregion
 
         public static bool HandlePulseOxResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
-            //HandlePusleOsResponse();
-            // parse the oxygen and heart rate
             char[] delimitors = { ' ', ',' };
             string[] parts = response.ResponseText.Split(delimitors);
+
+            string oxygen = null;
+            string heartRate = null; 
+
             if (parts.Length > 1)
             {
-                string oxygen = parts[0];
-                string heartRate = parts[1];
+                oxygen = parts[0];
+                heartRate = parts[1];
             }
-            bool isValid = valid();
-            //send back to vivify here
+            bool isValid = SmsValidation.validPulseOxHeartRate(oxygen, heartRate);
+
             return isValid;
         }
 
         public static bool HandleWeightResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
-            throw new NotImplementedException();
+            string weight = response.ResponseText;
+
+            bool isValid = SmsValidation.validWeightResponse(weight);
+
+            return isValid;
         }
 
         public static bool HandleBloodPressureResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
-            throw new NotImplementedException();
+            char[] delimitors = { ' ', ',' };
+            string[] parts = response.ResponseText.Split(delimitors);
+
+            string systole = null;
+            string diastole = null;
+
+            if (parts.Length > 1)
+            {
+                systole = parts[0];
+                diastole = parts[1];
+            }
+            bool isValid = SmsValidation.validBloodPressure(systole, diastole);
+
+            return isValid;
         }
 
         public static bool HandleBloodSugarResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
-            throw new NotImplementedException();
+            string patientResponse = response.ResponseText;
+            
+            bool isValid = SmsValidation.validBloodSugarResponse(patientResponse);
+
+            return isValid;
         }
     }
 }
