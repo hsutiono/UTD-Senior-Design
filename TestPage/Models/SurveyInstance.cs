@@ -159,7 +159,7 @@ namespace TestPage.Models
             }
             else
             {
-                //check validity , create PatientResponse, send message to vivify here!
+                //check validity , create PatientResponseApiPostModel, send message to vivify here!
                 if (sequenceType == 2)
                 {
                 }

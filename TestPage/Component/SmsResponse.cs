@@ -17,43 +17,43 @@ namespace TestPage.Component
 
             if ( response != null )
             {
-                SurveyInstance patientPhone = data.GetInstance(response.From);
-                if (patientPhone != null)
+                SurveyInstance patientSurvey = data.GetInstance(response.From);
+                if (patientSurvey != null)
                 {
                     //
-                    retVal = ProcessSmsText(patientPhone, response);
+                    retVal = ProcessSmsText(patientSurvey, response);
                 }
             }
             return retVal;
         }
 
-        static private string ProcessSmsText(SurveyInstance patientPhone, ResponseModel response)
+        static private string ProcessSmsText(SurveyInstance patientSurvey, ResponseModel response)
         {
             string retVal = null;
-            if (patientPhone != null )
+            if (patientSurvey != null )
             {
-                if (patientPhone.CurrentQuestion == NOT_STARTED )
+                if (patientSurvey.CurrentQuestion == NOT_STARTED )
                 {
-                    retVal = PlayFirstQuestion(patientPhone, response);
+                    retVal = PlayFirstQuestion(patientSurvey, response);
                 }
                 else
                 {
-                    retVal = HandleQuestionResponse(patientPhone, response);
+                    retVal = HandleQuestionResponse(patientSurvey, response);
                 }
             }
 
             return retVal;
         }
 
-        static private string PlayFirstQuestion(SurveyInstance patientPhone, ResponseModel response)
+        static private string PlayFirstQuestion(SurveyInstance patientSurvey, ResponseModel response)
         {
             string retVal = null;
-            if (patientPhone != null )
+            if (patientSurvey != null )
             {
                 if ( string.Compare( response.ResponseText, YES, true ) == 0 )
                 {
-                    patientPhone.fetchSurvey();
-                    PatientSurveyQuestion nextQuestion = patientPhone.getQuestion(patientPhone.CurrentQuestion);
+                    patientSurvey.fetchSurvey();
+                    PatientSurveyQuestion nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
 
                     retVal = SurveyInstance.getFormattedQuestionText(nextQuestion);
                 }
@@ -66,52 +66,121 @@ namespace TestPage.Component
  
         }
 
-        static private string HandleQuestionResponse(SurveyInstance patientPhone, ResponseModel response)
+        static private string HandleQuestionResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             string retVal = null;
-            if (patientPhone != null)
+            bool success = false;
+            if (patientSurvey != null)
             {
-                PatientSurveyQuestion nextQuestion = patientPhone.getQuestion(patientPhone.CurrentQuestion);
+                PatientSurveyQuestion nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
                 if (nextQuestion != null)
                 {
-                    switch (nextQuestion.SurveyQuestionTypeId)
+                    switch ((SurveyQuestionType)nextQuestion.SurveyQuestionTypeId)
                     {
-                        case 3: // SurveyQuestionTypeEnum.PulseOx
+                        case SurveyQuestionType.BloodSugar:
                             {
-                                //HandlePusleOsResponse();
-                                // parse the oxygen and heart rate
-                                char[] delimitors = {' ', ','};
-                                string[] parts = response.ResponseText.Split(delimitors);
-                                if (parts.Length > 1 )
-                                {
-                                    string oxygen = parts[0];
-                                    string heartRate = parts[1];
-                                }
-                                if ( valid() )
-                                {
-                                    // Save response to Vivify Portal
-                                    retVal = PlayNextQuestion(patientPhone, response);
-                                }
-                                else
-                                {
-                                    // retVal = ReplaySameQuestion();
-                                }
+                                success = HandleBloodSugarResponse(patientSurvey, response);
+                                break;
+                            }
+                        case SurveyQuestionType.BloodPressure:
+                            {
+                                success = HandleBloodPressureResponse(patientSurvey, response);
+                                break;
+                            }
+                        case SurveyQuestionType.PulseOx:
+                            {
+                                success = HandlePulseOxResponse(patientSurvey, response);
+                                break;
+                            }
+                        case SurveyQuestionType.Weight:
+                            {
+                                success = HandleWeightResponse(patientSurvey, response);
+                                break;
+                            }
+                        case SurveyQuestionType.Number:
+                            {
+                                success = HandleNumberResponse(patientSurvey, response);
+                                break;
+                            }
+                        case SurveyQuestionType.SingleSelection:
+                            {
+                                success = HandleSingleSelectionResponse(patientSurvey, response);
+                                break;
+                            }
+                        case SurveyQuestionType.MultiSelection:
+                            {
+                                success = HandleMultiSelectionResponse(patientSurvey, response);
                                 break;
                             }
                     }
+                    if(success)
+                    {
+                        retVal = PlayNextQuestion(patientSurvey, response);
+                    }
+                    else
+                    {
+                        //replay last question
+                    }
                 }
             }
+
+            
             
             return retVal;
         }
+        private static bool HandleMultiSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
+        {
+            throw new NotImplementedException();
+        }
 
-        static private string PlayNextQuestion(SurveyInstance patientPhone, ResponseModel response)
+        private static bool HandleSingleSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static bool HandleNumberResponse(SurveyInstance patientSurvey, ResponseModel response)
+        {
+            throw new NotImplementedException();
+        }
+
+        static private bool HandlePulseOxResponse(SurveyInstance patientSurvey, ResponseModel response)
+        {
+            //HandlePusleOsResponse();
+            // parse the oxygen and heart rate
+            char[] delimitors = { ' ', ',' };
+            string[] parts = response.ResponseText.Split(delimitors);
+            if (parts.Length > 1)
+            {
+                string oxygen = parts[0];
+                string heartRate = parts[1];
+            }
+            bool isValid = valid();
+            //send back to vivify here
+            return isValid;
+        }
+
+        private static bool HandleWeightResponse(SurveyInstance patientSurvey, ResponseModel response)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static bool HandleBloodPressureResponse(SurveyInstance patientSurvey, ResponseModel response)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static bool HandleBloodSugarResponse(SurveyInstance patientSurvey, ResponseModel response)
+        {
+            throw new NotImplementedException();
+        }
+
+        static private string PlayNextQuestion(SurveyInstance patientSurvey, ResponseModel response)
         {
             string retVal = null;
-            if (patientPhone != null)
+            if (patientSurvey != null)
             {
-         //       patientPhone.CurrentQuestion++;
-                PatientSurveyQuestion nextQuestion = patientPhone.getQuestion(patientPhone.CurrentQuestion);
+                patientSurvey.CurrentQuestion++;
+                PatientSurveyQuestion nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
                 if (nextQuestion != null)
                 {
                     retVal = SurveyInstance.getFormattedQuestionText(nextQuestion);

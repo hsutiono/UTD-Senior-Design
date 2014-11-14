@@ -187,7 +187,7 @@
     <Compile Include="Models\ActiveRegistry.cs" />
     <Compile Include="Models\PatientModel.cs" />
     <Compile Include="Models\PatientObservationModels.cs" />
-    <Compile Include="Models\PatientResponse.cs" />
+    <Compile Include="Models\Unused Models\PatientResponse.cs" />
     <Compile Include="Models\Unused Models\PatientSurvey.cs" />
     <Compile Include="Models\Unused Models\PatientSurveyModels.cs" />
     <Compile Include="Models\ResponseModel.cs" />
