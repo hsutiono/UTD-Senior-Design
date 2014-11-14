@@ -54,7 +54,7 @@ namespace TestPage.Component
                 if ( string.Compare( response.ResponseText, YES, true ) == 0 )
                 {
                     patientSurvey.fetchSurvey();
-                    PatientSurveyQuestion nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
+                    PatientSurveyQuestionModel nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
 
                     retVal = SurveyInstance.getFormattedQuestionText(nextQuestion);
                 }
@@ -73,7 +73,7 @@ namespace TestPage.Component
             bool success = false;
             if (patientSurvey != null)
             {
-                PatientSurveyQuestion nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
+                PatientSurveyQuestionModel nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
                 if (nextQuestion != null)
                 {
                     switch ((SurveyQuestionType)nextQuestion.SurveyQuestionTypeId)
@@ -120,13 +120,10 @@ namespace TestPage.Component
                     }
                     else
                     {
-                        //replay last question
+                        retVal = ReplayLastQuestion(patientSurvey, response);
                     }
                 }
             }
-
-            
-            
             return retVal;
         }
 
@@ -135,8 +132,8 @@ namespace TestPage.Component
             string retVal = null;
             if (patientSurvey != null)
             {
-                patientSurvey.CurrentQuestion++;
-                PatientSurveyQuestion nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
+                patientSurvey.CurrentQuestion++;//eventually this will be replaced with actual data structure traversal!
+                PatientSurveyQuestionModel nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
                 if (nextQuestion != null)
                 {
                     retVal = SurveyInstance.getFormattedQuestionText(nextQuestion);
@@ -146,6 +143,24 @@ namespace TestPage.Component
                     retVal = "Thank you for completing your survey.";
                 }
              }
+            return retVal;
+        }
+        static private string ReplayLastQuestion(SurveyInstance patientSurvey, ResponseModel response)
+        {
+            string retVal = null;
+            if (patientSurvey != null)
+            {
+                //patientSurvey.CurrentQuestion++; //don't change value if replay
+                PatientSurveyQuestionModel nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
+                if (nextQuestion != null)
+                {
+                    retVal = SurveyInstance.getFormattedQuestionText(nextQuestion);
+                }
+                else
+                {
+                    retVal = "Thank you for completing your survey.";
+                }
+            }
             return retVal;
         }
     }

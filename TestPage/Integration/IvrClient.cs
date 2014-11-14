@@ -13,7 +13,7 @@ namespace TestPage.Integration
 {
     public class IvrClient //interface with Vivify API
     {
-        private const string BaseUrl = "https://develop.dev.vivifyhealth.com";
+        private const string BaseUrl = "https://demoutdesign.dev.vivifyhealth.com";
 
         private const string UrlCreateSession = "/api/session/{id}";
         private const string UrlGetPatient = "/api/Patient/{PatientId}";
@@ -22,9 +22,9 @@ namespace TestPage.Integration
         private const string UrlGetPatientSurveyQuestion = "/api/PatientSurveyQuestion";
         private const string UrlPostPatientResponse = "/api/PatientResponse?AuthToken={AUTHTOKEN}";
 
-        private const string ClientId = "Twilio";
-        private const string ApiKey = "42bdc906-0c9c-4136-86ee-74613fdcb355";
-        private const string ApiSecret = "66bff0f0-9d06-4058-a3ca-06b4354e3b5d";
+        private const string ClientId = "UTDSMSClient";
+        private const string ApiKey = "c54cccac-0d78-4010-bbb8-f3c19c813b0a";
+        private const string ApiSecret = "e4dd052f-fb45-4a95-afc1-183b293a5cf1";
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly string _url;

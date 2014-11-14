@@ -29,7 +29,7 @@ namespace TestPage.Models
         //string emergencyContact;
         
         public DateTime previousContact;
-        List<PatientSurvey> surveyData;
+        List<PatientSurveyModel> surveyData;
 
         public SurveyInstance(int userID, string phone)
         {
@@ -42,7 +42,6 @@ namespace TestPage.Models
             var twilio = new TwilioRestClient(AccountSid, AuthToken);
             var send = twilio.SendMessage(server, phone, "Are you ready to take your survey?");
         }
-
         public bool surveyFetched()
         {
             return surveyData == null;
@@ -55,21 +54,21 @@ namespace TestPage.Models
             var request = new RestRequest(Method.GET);
             request.AddParameter("authtoken", "26881576-3F9B-4F97-B7F7-91532DE1586A", ParameterType.QueryString);
             request.AddParameter("PatientId", userID.ToString(), ParameterType.QueryString);
-            surveyData = client.Execute<List<PatientSurvey>>(request).Data;
+            surveyData = client.Execute<List<PatientSurveyModel>>(request).Data;
             if (sequenceType == 1)
             {
                 CurrentQuestion = 0;
             }
             //need for other sequence types when available
         }
-        public PatientSurveyQuestion getQuestion(int questionNumber)
+        public PatientSurveyQuestionModel getQuestion(int questionNumber)
         {
-            PatientSurveyQuestion retVal = null;
+            PatientSurveyQuestionModel retVal = null;
             if (sequenceType == 2)
             {
-                foreach (PatientSurvey properties in surveyData)
+                foreach (PatientSurveyModel properties in surveyData)
                 {
-                    foreach (PatientSurveyQuestion question in properties.PatientSurveyQuestions)
+                    foreach (PatientSurveyQuestionModel question in properties.PatientSurveyQuestions)
                     {
                         if (question.PatientSurveyQuestionId == questionNumber)
                         {
@@ -85,10 +84,10 @@ namespace TestPage.Models
             }
             if (sequenceType == 1)
             {
-                List<PatientSurveyQuestion> results = new List<PatientSurveyQuestion>();
-                foreach (PatientSurvey properties in surveyData)
+                List<PatientSurveyQuestionModel> results = new List<PatientSurveyQuestionModel>();
+                foreach (PatientSurveyModel properties in surveyData)
                 {
-                    foreach (PatientSurveyQuestion question in properties.PatientSurveyQuestions)
+                    foreach (PatientSurveyQuestionModel question in properties.PatientSurveyQuestions)
                     {
                         results.Add(question);
                     }
@@ -99,7 +98,8 @@ namespace TestPage.Models
         }
         /*public PatientSurveyQuestion nextQuestion(PatientSurveyQuestion currentQuestion, string response)
         { }*/
-        public static string getFormattedQuestionText(PatientSurveyQuestion patientQuestion)
+
+        public static string getFormattedQuestionText(PatientSurveyQuestionModel patientQuestion)
         {
             string retVal = "";
             if ( patientQuestion != null )
@@ -118,14 +118,14 @@ namespace TestPage.Models
                         }
                     default:
                         {
-                            retVal = patientQuestion.PatientSurveyQuestionTexts.First<PatientSurveyQuestionText>().Text + "\n";
+                            retVal = patientQuestion.PatientSurveyQuestionTexts.First<PatientSurveyQuestionTextModel>().Text + "\n";
                             int i = 1;
                             if (patientQuestion.PatientSurveyOptions != null)
                             {
-                                foreach (PatientSurveyOption option in patientQuestion.PatientSurveyOptions)
+                                foreach (PatientSurveyOptionModel option in patientQuestion.PatientSurveyOptions)
                                 {
                                     retVal += i + ": ";
-                                    foreach (PatientSurveyOptionText temp in option.PatientSurveyOptionTexts)
+                                    foreach (PatientSurveyOptionTextModel temp in option.PatientSurveyOptionTexts)
                                     {
                                         retVal += temp.Text + " ";
                                     }
@@ -139,6 +139,26 @@ namespace TestPage.Models
             }
             return retVal;
         }
+
+        public PatientResponseApiPostModel MakePostModelForResponseToCurrentQuestion()//will populate with appropriate PatientResponseValueApiPostModel which must either be edited or removed!
+        {
+            PatientResponseApiPostModel output = new PatientResponseApiPostModel();
+            output.PatientId = userID;
+            PatientSurveyQuestionModel currentQuestion = getQuestion(CurrentQuestion);
+            output.PatientSurveyQuestionId = currentQuestion.PatientSurveyQuestionId;
+            output.SurveyQuestionTypeId = currentQuestion.SurveyQuestionTypeId;
+            output.PatientResponseInputMethodId = 1;
+            output.ObservationDateTime_UTC = System.DateTime.Now;
+            foreach(PatientSurveyOptionModel item in currentQuestion.PatientSurveyOptions)
+            {
+                PatientResponseValueApiPostModel valuemodel = new PatientResponseValueApiPostModel();
+                valuemodel.PatientSurveyOptionId = item.PatientSurveyOptionId;
+                valuemodel.SurveyParameterTypeId = item.SurveyParameterTypeId.GetValueOrDefault();
+                output.PatientResponseValues.Add(valuemodel);
+            }
+            return output;
+        }
+
         public string response(string message)
         {
             DateTime prevprevContact = previousContact;
@@ -166,7 +186,7 @@ namespace TestPage.Models
                 if (sequenceType == 1)
                 {
                     CurrentQuestion++;
-                    PatientSurveyQuestion current = getQuestion(CurrentQuestion);
+                    PatientSurveyQuestionModel current = getQuestion(CurrentQuestion);
                     if (current == null) return null;
                     return getFormattedQuestionText(current);
                 }

@@ -28,14 +28,22 @@ namespace TestPage.Component
             //HandlePusleOsResponse();
             // parse the oxygen and heart rate
             char[] delimitors = { ' ', ',' };
+            string oxygen = "";
+            string heartRate="";
             string[] parts = response.ResponseText.Split(delimitors);
             if (parts.Length > 1)
             {
-                string oxygen = parts[0];
-                string heartRate = parts[1];
+                oxygen = parts[0];
+                heartRate = parts[1];
             }
-            bool isValid = valid();
+            bool isValid = true;// SmsValidation.valid();
             //send back to vivify here
+
+            if(isValid)
+            {
+                HandleResponsePost.HandlePulseOxPost(patientSurvey,oxygen,heartRate);
+            }
+
             return isValid;
         }
 
@@ -53,5 +61,6 @@ namespace TestPage.Component
         {
             throw new NotImplementedException();
         }
+
     }
 }

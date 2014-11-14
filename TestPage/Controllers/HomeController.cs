@@ -54,7 +54,7 @@ namespace TestPage.Controllers
             var request = new RestRequest(Method.GET);
             request.AddParameter("authtoken", "26881576-3F9B-4F97-B7F7-91532DE1586A", ParameterType.QueryString);
             request.AddParameter("PatientId", "5", ParameterType.QueryString);
-            var response = client.Execute<List<PatientSurvey>>(request).Data;
+            var response = client.Execute<List<PatientSurveyModel>>(request).Data;
 
 
             //////
@@ -143,7 +143,7 @@ namespace TestPage.Controllers
             var request = new RestRequest(Method.GET);
             request.AddParameter("authtoken", "26881576-3F9B-4F97-B7F7-91532DE1586A", ParameterType.QueryString);
             request.AddParameter("PatientId", "5", ParameterType.QueryString);
-            var response = client.Execute<List<PatientSurvey>>(request).Data;
+            var response = client.Execute<List<PatientSurveyModel>>(request).Data;
 
 
             //////

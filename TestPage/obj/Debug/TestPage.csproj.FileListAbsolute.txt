@@ -462,3 +462,5 @@ C:\Users\gxh111830\Documents\GitHub\UTD-Senior-Design\TestPage\obj\Debug\TestPag
 C:\Users\gxh111830\Documents\GitHub\UTD-Senior-Design\TestPage\obj\Debug\TestPage.pdb
 C:\Users\shado_000\Source\Repos\UTD-Senior-Design\TestPage\bin\NLog.dll
 C:\Users\shado_000\Source\Repos\UTD-Senior-Design\TestPage\bin\NLog.xml
+C:\Users\zxl098120\Source\Repos\UTD-Senior-Design\TestPage\bin\NLog.dll
+C:\Users\zxl098120\Source\Repos\UTD-Senior-Design\TestPage\bin\NLog.xml
