@@ -30,7 +30,6 @@ namespace TestPage.Controllers
             var twilio = new TwilioRestClient(AccountSid, AuthToken);
             // Build the parameters 
             var options = new MessageListRequest();
-            //options.To = "+17743077070";
             options.DateSent = DateTime.Today;
 
             var messages = twilio.ListMessages(options);
@@ -62,7 +61,6 @@ namespace TestPage.Controllers
             var twilio = new TwilioRestClient(AccountSid, AuthToken);
             // Build the parameters 
             var options = new MessageListRequest();
-            //options.To = "+17743077070";
             options.To = getPatientNumber();
             options.DateSent = DateTime.Today;
 
@@ -71,14 +69,6 @@ namespace TestPage.Controllers
             options.To = "+17743077070";
             options.From = getPatientNumber();
             var patientSent = twilio.ListMessages(options);
-            /////
-            /*int counter = 0;
-            ViewBag.messagebuffer = new string[int.Parse(patientSent.Total.ToString())];
-            foreach (var message in patientSent.Messages)
-            {
-                ViewBag.messagebuffer[counter] = "Recieved from " + message.From + " at " + message.DateSent + ": " + message.Body;
-                counter++;
-            }*/
 
 
             //This part parse the questions
@@ -91,40 +81,6 @@ namespace TestPage.Controllers
                 }
             }
 
-            //ViewBag.response = response;
-
-            //ViewBag.response = listOfQuestion;
-            //if (patientSent.Messages.Count > 0 && patientRecieved.Messages.Count > 0)
-            //{
-            //    var ps1 = patientSent.Messages.First();
-            //    var pr1 = patientRecieved.Messages.First();
-            //    if (pr1.Direction.Equals("outbound-reply"))
-            //        pr1 = patientRecieved.Messages.ElementAt(1);
-            //    if (ps1.DateSent.CompareTo(pr1.DateSent) < 0)
-            //    {
-            //        ViewBag.sent = "SENT";
-
-            //        foreach (string questionToSend in listOfQuestion)
-            //        {
-            //            bool said = false;
-            //            int counter2 = 0;
-            //            foreach (var message in patientRecieved.Messages)
-            //            {
-            //                if (message.Body.Equals(questionToSend))
-            //                {
-            //                    said = true;
-            //                    break;
-            //                }
-            //                counter2++;
-            //            }
-            //            if (!said)
-            //            {
-            //                sendQuestion(questionToSend, getPatientNumber());
-            //            }
-            //        }
-            //    }
-            //    else ViewBag.sent = "Nothing Sent";
-            //}
             return View();
         }
 
@@ -195,6 +151,8 @@ namespace TestPage.Controllers
             return View();
         }
 
+        #region team3Model that might not be used in final product
+
         [HttpPost]
         public ActionResult SendButton(Team3 model)
         {
@@ -215,6 +173,8 @@ namespace TestPage.Controllers
 
             return View("Success");
         }
+
+        #endregion
 
         #region no need of this
 
