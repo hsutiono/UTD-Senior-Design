@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TestPage.Models;
+using TestPage.Component;
 
 namespace TestPage.Component
 {
@@ -79,37 +80,37 @@ namespace TestPage.Component
                     {
                         case SurveyQuestionType.BloodSugar:
                             {
-                                success = HandleBloodSugarResponse(patientSurvey, response);
+                                success = HandleResponse.HandleBloodSugarResponse(patientSurvey, response);
                                 break;
                             }
                         case SurveyQuestionType.BloodPressure:
                             {
-                                success = HandleBloodPressureResponse(patientSurvey, response);
+                                success = HandleResponse.HandleBloodPressureResponse(patientSurvey, response);
                                 break;
                             }
                         case SurveyQuestionType.PulseOx:
                             {
-                                success = HandlePulseOxResponse(patientSurvey, response);
+                                success = HandleResponse.HandlePulseOxResponse(patientSurvey, response);
                                 break;
                             }
                         case SurveyQuestionType.Weight:
                             {
-                                success = HandleWeightResponse(patientSurvey, response);
+                                success = HandleResponse.HandleWeightResponse(patientSurvey, response);
                                 break;
                             }
                         case SurveyQuestionType.Number:
                             {
-                                success = HandleNumberResponse(patientSurvey, response);
+                                success = HandleResponse.HandleNumberResponse(patientSurvey, response);
                                 break;
                             }
                         case SurveyQuestionType.SingleSelection:
                             {
-                                success = HandleSingleSelectionResponse(patientSurvey, response);
+                                success = HandleResponse.HandleSingleSelectionResponse(patientSurvey, response);
                                 break;
                             }
                         case SurveyQuestionType.MultiSelection:
                             {
-                                success = HandleMultiSelectionResponse(patientSurvey, response);
+                                success = HandleResponse.HandleMultiSelectionResponse(patientSurvey, response);
                                 break;
                             }
                     }
@@ -127,51 +128,6 @@ namespace TestPage.Component
             
             
             return retVal;
-        }
-        private static bool HandleMultiSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static bool HandleSingleSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static bool HandleNumberResponse(SurveyInstance patientSurvey, ResponseModel response)
-        {
-            throw new NotImplementedException();
-        }
-
-        static private bool HandlePulseOxResponse(SurveyInstance patientSurvey, ResponseModel response)
-        {
-            //HandlePusleOsResponse();
-            // parse the oxygen and heart rate
-            char[] delimitors = { ' ', ',' };
-            string[] parts = response.ResponseText.Split(delimitors);
-            if (parts.Length > 1)
-            {
-                string oxygen = parts[0];
-                string heartRate = parts[1];
-            }
-            bool isValid = valid();
-            //send back to vivify here
-            return isValid;
-        }
-
-        private static bool HandleWeightResponse(SurveyInstance patientSurvey, ResponseModel response)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static bool HandleBloodPressureResponse(SurveyInstance patientSurvey, ResponseModel response)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static bool HandleBloodSugarResponse(SurveyInstance patientSurvey, ResponseModel response)
-        {
-            throw new NotImplementedException();
         }
 
         static private string PlayNextQuestion(SurveyInstance patientSurvey, ResponseModel response)
@@ -191,11 +147,6 @@ namespace TestPage.Component
                 }
              }
             return retVal;
-        }
- 
-        static private bool valid()
-        {
-            return true;
         }
     }
 }

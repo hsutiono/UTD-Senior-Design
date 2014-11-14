@@ -173,6 +173,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="Component\HandleResponse.cs" />
     <Compile Include="Component\PatientComponent.cs" />
     <Compile Include="Component\SmsResponse.cs" />
     <Compile Include="Component\WebHelpComponent.cs" />
