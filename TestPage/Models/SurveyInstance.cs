@@ -149,13 +149,8 @@ namespace TestPage.Models
             output.SurveyQuestionTypeId = currentQuestion.SurveyQuestionTypeId;
             output.PatientResponseInputMethodId = 1;
             output.ObservationDateTime_UTC = System.DateTime.Now;
-            foreach(PatientSurveyOptionModel item in currentQuestion.PatientSurveyOptions)
-            {
-                PatientResponseValueApiPostModel valuemodel = new PatientResponseValueApiPostModel();
-                valuemodel.PatientSurveyOptionId = item.PatientSurveyOptionId;
-                valuemodel.SurveyParameterTypeId = item.SurveyParameterTypeId.GetValueOrDefault();
-                output.PatientResponseValues.Add(valuemodel);
-            }
+            output.PatientResponseValues = new List<PatientResponseValueApiPostModel>();
+
             return output;
         }
 

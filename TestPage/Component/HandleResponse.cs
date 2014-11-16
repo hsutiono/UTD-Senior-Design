@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using TestPage.Integration;
 using TestPage.Models;
 
 namespace TestPage.Component
@@ -47,6 +48,27 @@ namespace TestPage.Component
                 heartRate = parts[1];
             }
             bool isValid = SmsValidation.validPulseOxHeartRate(oxygen, heartRate);
+
+            if (isValid)
+            {
+                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+
+                // Add Heart Rate Value
+                PatientResponseValueApiPostModel hearRateResonse = new PatientResponseValueApiPostModel();
+                hearRateResonse.SurveyParameterTypeId = 5; // heart rate
+                hearRateResonse.Value = heartRate;
+                patientResponse.PatientResponseValues.Add(hearRateResonse);
+
+                // Add Oxygen Value
+                PatientResponseValueApiPostModel OxygenResonse = new PatientResponseValueApiPostModel();
+                OxygenResonse.SurveyParameterTypeId = 6; // Oxygen
+                OxygenResonse.Value = oxygen;
+                patientResponse.PatientResponseValues.Add(OxygenResonse);
+
+                IvrService vivifyService = new IvrService();
+                vivifyService.PostPatientResponse(patientResponse);
+            }
+
 
             return isValid;
         }
