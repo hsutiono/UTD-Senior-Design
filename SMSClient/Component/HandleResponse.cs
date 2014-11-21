@@ -7,34 +7,79 @@ using SMSClient.Models;
 
 namespace SMSClient.Component
 {
-    public class HandleResponse
+    public class HandleResponse // if the return is null, then input invalid
     {
-        public static bool HandleMultiSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
+        public static PatientResponseApiPostModel HandleMultiSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
-            string multipleResponse = response.ResponseText;
+            char[] delimitors = { ' ', ',' };
+            string[] parts = response.ResponseText.Split(delimitors);
 
-            bool isValid = SmsValidation.validMultilpeSelection(patientSurvey, patientSurvey.CurrentQuestion, multipleResponse);
+            bool isValid = SmsValidation.validMultipleSelection(patientSurvey, patientSurvey.CurrentQuestion, response.ResponseText);
+            if (isValid)
+            {
+                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+                foreach(string item in parts)
+                {
+                    PatientResponseValueApiPostModel msResponse = new PatientResponseValueApiPostModel();
+                    msResponse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.Survey;
+                    int value = patientSurvey.FetchOptionCodeForResponseValue(item);
+                    if (value != -1)
+                    {
+                        msResponse.PatientSurveyOptionId = value;
+                        patientResponse.PatientResponseValues.Add(msResponse);
+                    }
+                }
 
-            return isValid;
+                IvrService vivifyService = new IvrService();
+                return vivifyService.PostPatientResponse(patientResponse);
+            }
+            return null;
         }
 
-        public static bool HandleSingleSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
+        public static PatientResponseApiPostModel HandleSingleSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             string singleResponse = response.ResponseText;
 
             bool isValid = SmsValidation.validSingleSelection(patientSurvey, patientSurvey.CurrentQuestion, singleResponse);
+            if (isValid)
+            {
+                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+                PatientResponseValueApiPostModel singleResponseModel = new PatientResponseValueApiPostModel();
+                singleResponseModel.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.Survey;
+                singleResponseModel.PatientSurveyOptionId =patientSurvey.FetchOptionCodeForResponseValue(singleResponse);
+                patientResponse.PatientResponseValues.Add(singleResponseModel);
+                IvrService vivifyService = new IvrService();
+                return vivifyService.PostPatientResponse(patientResponse);
+            }
 
-            return isValid;
+            return null;
         }
 
         #region questionable handling function
-        public static bool HandleNumberResponse(SurveyInstance patientSurvey, ResponseModel response)
+        public static PatientResponseApiPostModel HandleNumberResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
-            throw new NotImplementedException();
+            string number = response.ResponseText;
+
+            bool isValid = number!=null;
+
+            if (isValid)
+            {
+                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+
+                PatientResponseValueApiPostModel NumberResponse = new PatientResponseValueApiPostModel();
+                NumberResponse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.ReadingType;//not sure about this
+                NumberResponse.Value = number;
+                patientResponse.PatientResponseValues.Add(NumberResponse);
+
+                IvrService vivifyService = new IvrService();
+                return vivifyService.PostPatientResponse(patientResponse);
+            }
+
+            return null;
         }
         #endregion
 
-        public static bool HandlePulseOxResponse(SurveyInstance patientSurvey, ResponseModel response)
+        public static PatientResponseApiPostModel HandlePulseOxResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             char[] delimitors = { ' ', ',' };
             string[] parts = response.ResponseText.Split(delimitors);
@@ -55,34 +100,46 @@ namespace SMSClient.Component
 
                 // Add Heart Rate Value
                 PatientResponseValueApiPostModel hearRateResonse = new PatientResponseValueApiPostModel();
-                hearRateResonse.SurveyParameterTypeId = 5; // heart rate
+                hearRateResonse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.Pulse; // heart rate
                 hearRateResonse.Value = heartRate;
                 patientResponse.PatientResponseValues.Add(hearRateResonse);
 
                 // Add Oxygen Value
                 PatientResponseValueApiPostModel OxygenResonse = new PatientResponseValueApiPostModel();
-                OxygenResonse.SurveyParameterTypeId = 6; // Oxygen
+                OxygenResonse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.Oxygen; // Oxygen
                 OxygenResonse.Value = oxygen;
                 patientResponse.PatientResponseValues.Add(OxygenResonse);
 
                 IvrService vivifyService = new IvrService();
-                vivifyService.PostPatientResponse(patientResponse);
+                return vivifyService.PostPatientResponse(patientResponse);
             }
 
-
-            return isValid;
+            return null;
         }
 
-        public static bool HandleWeightResponse(SurveyInstance patientSurvey, ResponseModel response)
+        public static PatientResponseApiPostModel HandleWeightResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             string weight = response.ResponseText;
 
             bool isValid = SmsValidation.validWeightResponse(weight);
 
-            return isValid;
+            if (isValid)
+            {
+                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+
+                PatientResponseValueApiPostModel WeightResponse = new PatientResponseValueApiPostModel();
+                WeightResponse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.Weight;
+                WeightResponse.Value = weight;
+                patientResponse.PatientResponseValues.Add(WeightResponse);
+
+                IvrService vivifyService = new IvrService();
+                return vivifyService.PostPatientResponse(patientResponse);
+            }
+
+            return null;
         }
 
-        public static bool HandleBloodPressureResponse(SurveyInstance patientSurvey, ResponseModel response)
+        public static PatientResponseApiPostModel HandleBloodPressureResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             char[] delimitors = { ' ', ',' };
             string[] parts = response.ResponseText.Split(delimitors);
@@ -97,16 +154,49 @@ namespace SMSClient.Component
             }
             bool isValid = SmsValidation.validBloodPressure(systole, diastole);
 
-            return isValid;
+            if (isValid)
+            {
+                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+
+                // Add systolic
+                PatientResponseValueApiPostModel systolicResponse = new PatientResponseValueApiPostModel();
+                systolicResponse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.Systolic; // 
+                systolicResponse.Value = diastole;
+                patientResponse.PatientResponseValues.Add(systolicResponse);
+
+                // Add diastolic
+                PatientResponseValueApiPostModel diastolicResponse = new PatientResponseValueApiPostModel();
+                diastolicResponse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.Diastolic; // 
+                diastolicResponse.Value = systole;
+                patientResponse.PatientResponseValues.Add(diastolicResponse);
+
+                IvrService vivifyService = new IvrService();
+                return vivifyService.PostPatientResponse(patientResponse);
+            }
+
+            return null;
         }
 
-        public static bool HandleBloodSugarResponse(SurveyInstance patientSurvey, ResponseModel response)
+        public static PatientResponseApiPostModel HandleBloodSugarResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
-            string patientResponse = response.ResponseText;
-            
-            bool isValid = SmsValidation.validBloodSugarResponse(patientResponse);
+            string bloodsugarResponse = response.ResponseText;
 
-            return isValid;
+            bool isValid = SmsValidation.validBloodSugarResponse(bloodsugarResponse);
+
+            if (isValid)
+            {
+                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+
+                PatientResponseValueApiPostModel BloodSugarResponse = new PatientResponseValueApiPostModel();
+                BloodSugarResponse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.BloodSugar;
+                BloodSugarResponse.Value = bloodsugarResponse;
+                patientResponse.PatientResponseValues.Add(BloodSugarResponse);
+
+                IvrService vivifyService = new IvrService();
+                return vivifyService.PostPatientResponse(patientResponse);
+            }
+
+            return null;
         }
     }
 }

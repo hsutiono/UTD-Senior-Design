@@ -101,7 +101,7 @@ namespace SMSClient.Component
             bool valid = false;
             int isOptionNumber = 0;
             int chosenOption = 0;
-            int numberOfOptions = patientSurvey.getQuestion(currentQuestion).PatientSurveyOptions.Count();
+            int numberOfOptions = patientSurvey.GetQuestion(currentQuestion).PatientSurveyOptions.Count();
 
             if (singleResponse != string.Empty)
             {
@@ -119,7 +119,7 @@ namespace SMSClient.Component
             return valid;
         }
 
-        internal static bool validMultilpeSelection(SurveyInstance patientSurvey, int currentQuestion, string multipleResponse)
+        internal static bool validMultipleSelection(SurveyInstance patientSurvey, int currentQuestion, string multipleResponse)
         {
             bool valid = false;
             int chosenOpt = 0;
@@ -127,7 +127,7 @@ namespace SMSClient.Component
             List<int> chosenOptions = new List<int>();
             char[] delimitors = { ' ', ',' };
             string[] parts = multipleResponse.Split(delimitors);
-            int numberOfOptions = patientSurvey.getQuestion(currentQuestion).PatientSurveyOptions.Count();
+            int numberOfOptions = patientSurvey.GetQuestion(currentQuestion).PatientSurveyOptions.Count();
 
             if (multipleResponse != string.Empty)
             {

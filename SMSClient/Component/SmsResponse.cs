@@ -54,7 +54,7 @@ namespace SMSClient.Component
                 if ( string.Compare( response.ResponseText, YES, true ) == 0 )
                 {
                     patientSurvey.fetchSurvey();
-                    PatientSurveyQuestionModel nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
+                    PatientSurveyQuestionModel nextQuestion = patientSurvey.GetQuestion(patientSurvey.CurrentQuestion);
 
                     retVal = SurveyInstance.getFormattedQuestionText(nextQuestion);
                 }
@@ -69,58 +69,69 @@ namespace SMSClient.Component
 
         static private string HandleQuestionResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
-            string retVal = null;
+            string retVal = "";
             bool success = false;
+            PatientResponseApiPostModel serverresponse = null;
             if (patientSurvey != null)
             {
-                PatientSurveyQuestionModel nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
+                PatientSurveyQuestionModel nextQuestion = patientSurvey.GetQuestion(patientSurvey.CurrentQuestion);
                 if (nextQuestion != null)
                 {
-                    switch ((SurveyQuestionType)nextQuestion.SurveyQuestionTypeId)
+                    try
                     {
-                        case SurveyQuestionType.BloodSugar:
-                            {
-                                success = HandleResponse.HandleBloodSugarResponse(patientSurvey, response);
-                                break;
-                            }
-                        case SurveyQuestionType.BloodPressure:
-                            {
-                                success = HandleResponse.HandleBloodPressureResponse(patientSurvey, response);
-                                break;
-                            }
-                        case SurveyQuestionType.PulseOx:
-                            {
-                                success = HandleResponse.HandlePulseOxResponse(patientSurvey, response);
-                                break;
-                            }
-                        case SurveyQuestionType.Weight:
-                            {
-                                success = HandleResponse.HandleWeightResponse(patientSurvey, response);
-                                break;
-                            }
-                        case SurveyQuestionType.Number:
-                            {
-                                success = HandleResponse.HandleNumberResponse(patientSurvey, response);
-                                break;
-                            }
-                        case SurveyQuestionType.SingleSelection:
-                            {
-                                success = HandleResponse.HandleSingleSelectionResponse(patientSurvey, response);
-                                break;
-                            }
-                        case SurveyQuestionType.MultiSelection:
-                            {
-                                success = HandleResponse.HandleMultiSelectionResponse(patientSurvey, response);
-                                break;
-                            }
+                        switch ((SurveyQuestionType)nextQuestion.SurveyQuestionTypeId)
+                        {
+                            case SurveyQuestionType.BloodSugar:
+                                {
+                                    serverresponse = HandleResponse.HandleBloodSugarResponse(patientSurvey, response);
+                                    break;
+                                }
+                            case SurveyQuestionType.BloodPressure:
+                                {
+                                    serverresponse = HandleResponse.HandleBloodPressureResponse(patientSurvey, response);
+                                    break;
+                                }
+                            case SurveyQuestionType.PulseOx:
+                                {
+                                    serverresponse = HandleResponse.HandlePulseOxResponse(patientSurvey, response);
+                                    break;
+                                    }
+                            case SurveyQuestionType.Weight:
+                                {
+                                    serverresponse = HandleResponse.HandleWeightResponse(patientSurvey, response);
+                                    break;
+                                }
+                            case SurveyQuestionType.Number:
+                                {
+                                    serverresponse = HandleResponse.HandleNumberResponse(patientSurvey, response);
+                                    break;
+                                }
+                            case SurveyQuestionType.SingleSelection:
+                                {
+                                    serverresponse = HandleResponse.HandleSingleSelectionResponse(patientSurvey, response);
+                                    break;
+                                }
+                            case SurveyQuestionType.MultiSelection:
+                                {
+                                    serverresponse = HandleResponse.HandleMultiSelectionResponse(patientSurvey, response);
+                                    break;
+                                }
+                        }
                     }
-                    if(success)
+                    catch (Integration.HttpResponseException e)
                     {
-                        retVal = PlayNextQuestion(patientSurvey, response);
+                        Console.WriteLine(e.StackTrace);
+                        serverresponse = new PatientResponseApiPostModel();//ignore case
+                    };
+
+                    success = serverresponse != null;
+                    if(success || patientSurvey.CurrentlyOnOptionlessResponse())
+                    {
+                        retVal += PlayNextQuestion(patientSurvey, response);
                     }
                     else
                     {
-                        retVal = ReplayLastQuestion(patientSurvey, response);
+                        retVal += "Retry: "+ReplayLastQuestion(patientSurvey, response);
                     }
                 }
             }
@@ -133,10 +144,14 @@ namespace SMSClient.Component
             if (patientSurvey != null)
             {
                 patientSurvey.CurrentQuestion++;//eventually this will be replaced with actual data structure traversal!
-                PatientSurveyQuestionModel nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
+                PatientSurveyQuestionModel nextQuestion = patientSurvey.GetQuestion(patientSurvey.CurrentQuestion);
                 if (nextQuestion != null)
                 {
                     retVal = SurveyInstance.getFormattedQuestionText(nextQuestion);
+                    if (patientSurvey.CurrentlyOnOptionlessResponse())
+                    {
+                        retVal += "Send any response to continue.";
+                    }
                 }
                 else
                 {
@@ -151,7 +166,7 @@ namespace SMSClient.Component
             if (patientSurvey != null)
             {
                 //patientSurvey.CurrentQuestion++; //don't change value if replay
-                PatientSurveyQuestionModel nextQuestion = patientSurvey.getQuestion(patientSurvey.CurrentQuestion);
+                PatientSurveyQuestionModel nextQuestion = patientSurvey.GetQuestion(patientSurvey.CurrentQuestion);
                 if (nextQuestion != null)
                 {
                     retVal = SurveyInstance.getFormattedQuestionText(nextQuestion);

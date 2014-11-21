@@ -61,7 +61,34 @@ namespace SMSClient.Models
             }
             //need for other sequence types when available
         }
-        public PatientSurveyQuestionModel getQuestion(int questionNumber)
+        public bool HasNextQuestion()
+        {
+            bool retVal = false;
+            if (sequenceType == 2)
+            {
+                foreach (PatientSurveyModel properties in surveyData)
+                {
+                    foreach (PatientSurveyQuestionModel question in properties.PatientSurveyQuestions)
+                    {
+                    }
+                }
+                retVal = true;
+            }
+            if (sequenceType == 1)
+            {
+                List<PatientSurveyQuestionModel> results = new List<PatientSurveyQuestionModel>();
+                foreach (PatientSurveyModel properties in surveyData)
+                {
+                    foreach (PatientSurveyQuestionModel question in properties.PatientSurveyQuestions)
+                    {
+                        results.Add(question);
+                    }
+                }
+                retVal = results.Count<=CurrentQuestion;
+            }
+            return retVal; 
+        }
+        public PatientSurveyQuestionModel GetQuestion(int questionNumber)
         {
             PatientSurveyQuestionModel retVal = null;
             if (sequenceType == 2)
@@ -91,11 +118,46 @@ namespace SMSClient.Models
                     {
                         results.Add(question);
                     }
-                } 
-                retVal = results[questionNumber];
+                }
+                if (questionNumber < results.Count)
+                {
+                    retVal = results[questionNumber];
+                }
             }
             return retVal;
         }
+
+        public int FetchOptionCodeForResponseValue(string value)//returns option code for a response string.
+        {
+            int retval = -1;
+            value = value.Trim();
+            List<PatientSurveyOptionModel> currentq = GetQuestion(CurrentQuestion).PatientSurveyOptions;
+            int opcount = 1;
+            foreach(PatientSurveyOptionModel item in currentq)
+            {
+                bool matchesthisoption = false;
+                foreach(PatientSurveyOptionTextModel text in item.PatientSurveyOptionTexts)
+                {
+                    if(string.Compare(value, text.Text, true)==0)
+                    {
+                        matchesthisoption = true;
+                        break;
+                    }  
+                }
+                if(opcount.ToString().Equals(value))
+                {
+                    matchesthisoption = true;
+                }
+                if(matchesthisoption)
+                {
+                    retval = item.PatientSurveyOptionId;
+                    break;
+                }
+                opcount++;
+            }
+            return retval;
+        }
+
         /*public PatientSurveyQuestion nextQuestion(PatientSurveyQuestion currentQuestion, string response)
         { }*/
 
@@ -106,16 +168,34 @@ namespace SMSClient.Models
             {
                 switch (  patientQuestion.SurveyQuestionTypeId )
                 {
-                    case 3: // SurveyQuestionTypeEnum.PulseOx
+                    case (int)SurveyQuestionType.PulseOx: // SurveyQuestionTypeEnum.PulseOx
                         {
                             retVal = "Please enter your oxygen level and heart rate.";
                             break;
                         }
-                    case 2: // SurveyQuestionTypeEnum.BloodPressure
+                    case (int)SurveyQuestionType.BloodPressure: // SurveyQuestionTypeEnum.BloodPressure
                         {
-                            retVal = "Please enter your blood pressure. Systolic/Diastolic.";
+                            retVal = "Please enter your blood pressure. Systolic,Diastolic.";
                             break;
                         }
+                    case (int)SurveyQuestionType.BloodSugar:
+                        {
+                            retVal = "Please enter your Blood Sugar Level.";
+                            break;
+                        }
+                    case (int)SurveyQuestionType.Weight:
+                        {
+                            retVal = "Please enter your weight.";
+                            break;
+                        }
+                    /*case (int)SurveyQuestionType.SingleSelection:
+                        {
+
+                        }
+                    case (int)SurveyQuestionType.MultiSelection:
+                        {
+
+                        }*/
                     default:
                         {
                             retVal = patientQuestion.PatientSurveyQuestionTexts.First<PatientSurveyQuestionTextModel>().Text + "\n";
@@ -140,11 +220,11 @@ namespace SMSClient.Models
             return retVal;
         }
 
-        public PatientResponseApiPostModel MakePostModelForResponseToCurrentQuestion()//will populate with appropriate PatientResponseValueApiPostModel which must either be edited or removed!
+        public PatientResponseApiPostModel MakePostModelForResponseToCurrentQuestion()//will populate with appropriate PatientResponseValueApiPostModel with empty PatientResponseValues
         {
             PatientResponseApiPostModel output = new PatientResponseApiPostModel();
             output.PatientId = userID;
-            PatientSurveyQuestionModel currentQuestion = getQuestion(CurrentQuestion);
+            PatientSurveyQuestionModel currentQuestion = GetQuestion(CurrentQuestion);
             output.PatientSurveyQuestionId = currentQuestion.PatientSurveyQuestionId;
             output.SurveyQuestionTypeId = currentQuestion.SurveyQuestionTypeId;
             output.PatientResponseInputMethodId = 1;
@@ -168,7 +248,7 @@ namespace SMSClient.Models
                 if (message.Equals("yes"))
                 {
                     fetchSurvey();
-                    return getFormattedQuestionText(getQuestion(CurrentQuestion));
+                    return getFormattedQuestionText(GetQuestion(CurrentQuestion));
                 }
                 else return "Text yes when ready.";
             }
@@ -181,12 +261,17 @@ namespace SMSClient.Models
                 if (sequenceType == 1)
                 {
                     CurrentQuestion++;
-                    PatientSurveyQuestionModel current = getQuestion(CurrentQuestion);
+                    PatientSurveyQuestionModel current = GetQuestion(CurrentQuestion);
                     if (current == null) return null;
                     return getFormattedQuestionText(current);
                 }
             }
             return "N/A";
+        }
+
+        internal bool CurrentlyOnOptionlessResponse()
+        {
+            return GetQuestion(CurrentQuestion).PatientSurveyOptions.Count==0;
         }
     }
 }

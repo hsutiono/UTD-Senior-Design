@@ -5,9 +5,12 @@
     {
         string number = Request.Form["phone"];
         
-        if (number.Substring(0, 2) != "+1")
+        if (number.Length == 10)
         {
-            number = "+1" + number;
+            if(number.Substring(0, 2) != "+1")
+            {
+                number = "+1" + number;
+            }
         }
         if(number.Length == 12)
         {
