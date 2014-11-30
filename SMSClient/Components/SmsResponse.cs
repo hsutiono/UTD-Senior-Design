@@ -9,137 +9,39 @@ namespace SMSClient.Components
 {
     public class SmsResponse
     {
-        const string YES = "yes";
-        const int NOT_STARTED = -1;
-        const string EXIT_MSG = "Thank you for completing your survey.";
-        const string REJECT_MSG = "Ok. We will try again later. Send yes to continue";
-        const string RETRY_PREFIX = "Retry: ";
+        private const string YES = "yes";
+        private const string REJECT_MSG = "Ok. We will try again later. Send yes to continue";
+        private const string RETRY_PREFIX = "Retry: ";
+        private const string EXIT_MSG = "Thank you for completing your survey.";
 
         static public string HandleSmsResponse(ResponseModel response, Dictionary<string, SurveyInstance> data)
         {
-            string retVal = null;
+            string retVal = "";
 
-            if ( response != null && response.From!=null)
+            if ( response != null && response.From!=null && data.Keys.Contains(response.From))
             {
                 SurveyInstance patientSurvey = data[response.From];
                 if (patientSurvey != null)
                 {
-                    //
-                    retVal = ProcessSmsText(patientSurvey, response);
-                    if (retVal.Equals(EXIT_MSG))
+                    if (!patientSurvey.SurveyStarted() || QuestionIsOptionless(patientSurvey.GetCurrentQuestion()))
                     {
-                        data.Remove(response.From);
-                    }
-                }
-            }
-            return retVal;
-        }
-
-        static private string ProcessSmsText(SurveyInstance patientSurvey, ResponseModel response)
-        {
-            string retVal = null;
-            if (patientSurvey != null )
-            {
-                if (patientSurvey.CurrentQuestion == NOT_STARTED )
-                {
-                    retVal = PlayFirstQuestion(patientSurvey, response);
-                }
-                else
-                {
-                    retVal = HandleQuestionResponse(patientSurvey, response);
-                }
-            }
-
-            return retVal;
-        }
-
-        static private string PlayFirstQuestion(SurveyInstance patientSurvey, ResponseModel response)
-        {
-            string retVal = null;
-            if (patientSurvey != null )
-            {
-                if ( string.Compare( response.ResponseText, YES, true ) == 0 )
-                {
-                    patientSurvey.fetchSurvey();
-                    PatientSurveyQuestionModel nextQuestion = patientSurvey.GetCurrentQuestion();
-
-                    retVal = SurveyInstance.getFormattedQuestionText(nextQuestion);
-                }
-                else
-                {
-                    retVal = REJECT_MSG;
-                }
-            }
-            return retVal;
- 
-        }
-
-        static private string HandleQuestionResponse(SurveyInstance patientSurvey, ResponseModel response)
-        {
-            string retVal = "";
-            bool success = false;
-            PatientResponseApiPostModel serverresponse = null;
-            if (patientSurvey != null)
-            {
-                PatientSurveyQuestionModel nextQuestion = patientSurvey.GetCurrentQuestion();
-                if (nextQuestion != null)
-                {
-                    try
-                    {
-                        switch ((SurveyQuestionType)nextQuestion.SurveyQuestionTypeId)
-                        {
-                            case SurveyQuestionType.BloodSugar:
-                                {
-                                    serverresponse = HandleResponse.HandleBloodSugarResponse(patientSurvey, response);
-                                    break;
-                                }
-                            case SurveyQuestionType.BloodPressure:
-                                {
-                                    serverresponse = HandleResponse.HandleBloodPressureResponse(patientSurvey, response);
-                                    break;
-                                }
-                            case SurveyQuestionType.PulseOx:
-                                {
-                                    serverresponse = HandleResponse.HandlePulseOxResponse(patientSurvey, response);
-                                    break;
-                                    }
-                            case SurveyQuestionType.Weight:
-                                {
-                                    serverresponse = HandleResponse.HandleWeightResponse(patientSurvey, response);
-                                    break;
-                                }
-                            case SurveyQuestionType.Number:
-                                {
-                                    serverresponse = HandleResponse.HandleNumberResponse(patientSurvey, response);
-                                    break;
-                                }
-                            case SurveyQuestionType.SingleSelection:
-                                {
-                                    serverresponse = HandleResponse.HandleSingleSelectionResponse(patientSurvey, response);
-                                    break;
-                                }
-                            case SurveyQuestionType.MultiSelection:
-                                {
-                                    serverresponse = HandleResponse.HandleMultiSelectionResponse(patientSurvey, response);
-                                    break;
-                                }
-                        }
-                    }
-                    catch (Integration.HttpResponseException e)
-                    {
-                        Console.WriteLine(e.StackTrace);
-                        serverresponse = new PatientResponseApiPostModel();//ignore case
-                    };
-
-                    success = serverresponse != null;
-                    if(success || patientSurvey.CurrentlyOnOptionlessResponse())
-                    {
-                        patientSurvey.NextQuestion();
-                        retVal += PlayQuestion(patientSurvey, response);
+                        retVal = PlayQuestion(patientSurvey, response);
                     }
                     else
                     {
-                        retVal += RETRY_PREFIX + PlayQuestion(patientSurvey, response);
+                        bool success = HandleResponse.HandleQuestionResponse(patientSurvey, response) != null;
+                        if (success)
+                        {
+                            retVal = PlayQuestion(patientSurvey, response);
+                        }
+                        else
+                        {
+                            retVal = RETRY_PREFIX + PlayQuestion(patientSurvey, response);
+                        }
+                    }
+                    if (retVal.Equals(EXIT_MSG))
+                    {
+                        data.Remove(response.From);
                     }
                 }
             }
@@ -152,16 +54,97 @@ namespace SMSClient.Components
             if (patientSurvey != null)
             {
                 PatientSurveyQuestionModel question = patientSurvey.GetCurrentQuestion();
-                if (question != null)
+                if(!patientSurvey.SurveyStarted())
                 {
-                    retVal = SurveyInstance.getFormattedQuestionText(question);
+                    if (string.Compare(response.ResponseText, YES, true) == 0)
+                    {
+                        patientSurvey.StartSurvey();
+                        retVal = getFormattedQuestionText(question);
+                    }
+                    else
+                    {
+                        retVal = REJECT_MSG;
+                    }
                 }
                 else
                 {
-                    retVal = EXIT_MSG;
+                        
+                    if (question != null)
+                    {
+                        retVal = getFormattedQuestionText(question);
+                    }
+                    else
+                    {
+                        retVal = EXIT_MSG;
+                    }
+
                 }
             }
             return retVal;
         }
+
+        private static bool QuestionIsOptionless(PatientSurveyQuestionModel currentQuestion)
+        {
+            return currentQuestion.PatientSurveyOptions.Count == 0;
+        }
+        private static string getFormattedQuestionText(PatientSurveyQuestionModel patientQuestion)
+        {
+            string retVal = "";
+            if (patientQuestion != null)
+            {
+                switch (patientQuestion.SurveyQuestionTypeId)
+                {
+                    case (int)SurveyQuestionType.PulseOx: // SurveyQuestionTypeEnum.PulseOx
+                        {
+                            retVal = "Please enter your oxygen level and heart rate.";
+                            break;
+                        }
+                    case (int)SurveyQuestionType.BloodPressure: // SurveyQuestionTypeEnum.BloodPressure
+                        {
+                            retVal = "Please enter your blood pressure. Systolic,Diastolic.";
+                            break;
+                        }
+                    case (int)SurveyQuestionType.BloodSugar:
+                        {
+                            retVal = "Please enter your Blood Sugar Level.";
+                            break;
+                        }
+                    case (int)SurveyQuestionType.Weight:
+                        {
+                            retVal = "Please enter your weight.";
+                            break;
+                        }
+                    /*case (int)SurveyQuestionType.SingleSelection:
+                        {
+
+                        }
+                    case (int)SurveyQuestionType.MultiSelection:
+                        {
+
+                        }*/
+                    default:
+                        {
+                            retVal = patientQuestion.PatientSurveyQuestionTexts.First<PatientSurveyQuestionTextModel>().Text + "\n";
+                            int i = 1;
+                            if (patientQuestion.PatientSurveyOptions != null)
+                            {
+                                foreach (PatientSurveyOptionModel option in patientQuestion.PatientSurveyOptions)
+                                {
+                                    retVal += i + ": ";
+                                    foreach (PatientSurveyOptionTextModel temp in option.PatientSurveyOptionTexts)
+                                    {
+                                        retVal += temp.Text + " ";
+                                    }
+                                    retVal += "\n";
+                                    i++;
+                                }
+                            }
+                            break;
+                        }
+                }
+            }
+            return retVal;
+        }
+
     }
 }

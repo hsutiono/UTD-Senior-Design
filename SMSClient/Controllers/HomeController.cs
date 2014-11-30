@@ -33,8 +33,6 @@ namespace SMSClient.Controllers
             patientResponse.To = Request["To"];
             patientResponse.ResponseText = Request["Body"];
 
-            //string responseText = reg.response(patientResponse.From, patientResponse.To, patientResponse.ResponseText);
-
             string responseText = SmsResponse.HandleSmsResponse(patientResponse, reg);
             if (responseText != null)
             {

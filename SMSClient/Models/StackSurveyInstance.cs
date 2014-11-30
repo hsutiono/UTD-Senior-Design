@@ -15,15 +15,15 @@ using SMSClient.Integration;
 
 namespace SMSClient.Models
 {
-    public class SurveyInstance
+    public class StackSurveyInstance
     {
         private bool surveyStarted;
         public int userID;
         public string phone;
         PatientModel patient = null;
-        PatientSurveyQuestionModel CurrentQuestionModel = null;
+        Stack<PatientSurveyQuestionModel> ActiveQuestion = new Stack<PatientSurveyQuestionModel>();
 
-        public SurveyInstance(string _phone, int? _userID = null )
+        public StackSurveyInstance(string _phone, int? _userID = null )
         {
             this.phone = _phone;
             TwilioService firstSend = new TwilioService();
@@ -46,12 +46,12 @@ namespace SMSClient.Models
         }
         public PatientSurveyQuestionModel GetCurrentQuestion()
         {
-            return CurrentQuestionModel;
+            return ActiveQuestion.First();
         }
 
         public void StartSurvey()
         {
-            if(CurrentQuestionModel==null)
+            if(ActiveQuestion.Count==0)
             {
                 fetchData();
             }
@@ -68,36 +68,35 @@ namespace SMSClient.Models
                 //get patient data
                 patient = PatientComponent.GetPatient(userID);
             }
-            if(CurrentQuestionModel == null)
+            if (ActiveQuestion.Count == 0)
             {
                 //get question model.
-                CurrentQuestionModel = PatientComponent.GetNextSurveyQuestion(GetPatient().Id, -1, null);// what is a good null value here?
+                ActiveQuestion.Push(PatientComponent.GetNextSurveyQuestion(GetPatient().Id, -1, null));// what is a good null value here?
             }
         }
         public bool NextQuestion(List<int?> currentPatientSurveyOptionIds)
         {
-            PatientSurveyQuestionModel nextbasequestion = PatientComponent.GetNextSurveyQuestion(GetPatient().Id, GetCurrentQuestion().PatientSurveyQuestionId, currentPatientSurveyOptionIds);
             List<PatientSurveyOptionModel> optionsselected = new List<PatientSurveyOptionModel>();
-            foreach(PatientSurveyOptionModel item in CurrentQuestionModel.PatientSurveyOptions)
+            foreach(PatientSurveyOptionModel item in GetCurrentQuestion().PatientSurveyOptions)
             {
                 if(currentPatientSurveyOptionIds.Contains(item.PatientSurveyOptionId))
                 {
                     optionsselected.Add(item);
                 }
             }
-            if(optionsselected.Count!=0)
+            if(optionsselected.Count==0)
             {
-                CurrentQuestionModel = optionsselected.FirstOrDefault().PatientSurveyQuestions.FirstOrDefault();
+                ActiveQuestion.Pop();
+                if(ActiveQuestion.Count<=0)
+                    ActiveQuestion.Push(PatientComponent.GetNextSurveyQuestion(GetPatient().Id, GetCurrentQuestion().PatientSurveyQuestionId, currentPatientSurveyOptionIds));
             }
             else
             {
-                CurrentQuestionModel = nextbasequestion;
+                ActiveQuestion.Pop();
+                if (ActiveQuestion.Count <= 0)
+                    ActiveQuestion.Push(PatientComponent.GetNextSurveyQuestion(GetPatient().Id, GetCurrentQuestion().PatientSurveyQuestionId, currentPatientSurveyOptionIds));
             }
-            if(CurrentQuestionModel==null)
-            {
-                CurrentQuestionModel = nextbasequestion;
-            }
-            return CurrentQuestionModel!=null;
+            return ActiveQuestion.Count!=0;
         }
     }
 }

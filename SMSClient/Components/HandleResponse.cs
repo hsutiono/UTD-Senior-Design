@@ -9,20 +9,80 @@ namespace SMSClient.Components
 {
     public class HandleResponse // if the return is null, then input invalid
     {
-        public static PatientResponseApiPostModel HandleMultiSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
+        public static PatientResponseApiPostModel HandleQuestionResponse(SurveyInstance patientSurvey, ResponseModel response) //returns response from the server on success and null on failure.
+        {
+            PatientResponseApiPostModel serverresponse = null;
+            if (patientSurvey != null)
+            {
+                PatientSurveyQuestionModel nextQuestion = patientSurvey.GetCurrentQuestion();
+                if (nextQuestion != null)
+                {
+                    try
+                    {
+                        switch ((SurveyQuestionType)nextQuestion.SurveyQuestionTypeId)
+                        {
+                            case SurveyQuestionType.BloodSugar:
+                                {
+                                    serverresponse = HandleBloodSugarResponse(patientSurvey, response);
+                                    break;
+                                }
+                            case SurveyQuestionType.BloodPressure:
+                                {
+                                    serverresponse = HandleBloodPressureResponse(patientSurvey, response);
+                                    break;
+                                }
+                            case SurveyQuestionType.PulseOx:
+                                {
+                                    serverresponse = HandlePulseOxResponse(patientSurvey, response);
+                                    break;
+                                }
+                            case SurveyQuestionType.Weight:
+                                {
+                                    serverresponse = HandleWeightResponse(patientSurvey, response);
+                                    break;
+                                }
+                            case SurveyQuestionType.Number:
+                                {
+                                    serverresponse = HandleNumberResponse(patientSurvey, response);
+                                    break;
+                                }
+                            case SurveyQuestionType.SingleSelection:
+                                {
+                                    serverresponse = HandleSingleSelectionResponse(patientSurvey, response);
+                                    break;
+                                }
+                            case SurveyQuestionType.MultiSelection:
+                                {
+                                    serverresponse = HandleMultiSelectionResponse(patientSurvey, response);
+                                    break;
+                                }
+                        }
+                    }
+                    catch (Integration.HttpResponseException e)
+                    {
+                        Console.WriteLine(e.StackTrace);
+                        serverresponse = new PatientResponseApiPostModel();//ignore case
+                    };
+
+                }
+            }
+            return serverresponse;
+        }
+
+        private static PatientResponseApiPostModel HandleMultiSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             char[] delimitors = { ' ', ',' };
             string[] parts = response.ResponseText.Split(delimitors);
 
-            bool isValid = SmsValidation.validMultipleSelection(patientSurvey, patientSurvey.CurrentQuestion, response.ResponseText);
+            bool isValid = SmsValidation.validMultipleSelection(patientSurvey, patientSurvey.GetCurrentQuestion().PatientSurveyQuestionId, response.ResponseText);
             if (isValid)
             {
-                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+                PatientResponseApiPostModel patientResponse = MakePostModelForResponseToQuestion(patientSurvey.GetCurrentQuestion(), patientSurvey.GetPatient());
                 foreach(string item in parts)
                 {
                     PatientResponseValueApiPostModel msResponse = new PatientResponseValueApiPostModel();
                     msResponse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.Survey;
-                    int value = patientSurvey.FetchOptionCodeForResponseValue(item);
+                    int value = FetchOptionCodeForResponseValue(patientSurvey.GetCurrentQuestion(),item);
                     if (value != -1)
                     {
                         msResponse.PatientSurveyOptionId = value;
@@ -31,24 +91,27 @@ namespace SMSClient.Components
                 }
 
                 IvrService vivifyService = new IvrService();
+                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));
                 return vivifyService.PostPatientResponse(patientResponse);
             }
             return null;
         }
 
-        public static PatientResponseApiPostModel HandleSingleSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
+        private static PatientResponseApiPostModel HandleSingleSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             string singleResponse = response.ResponseText;
 
-            bool isValid = SmsValidation.validSingleSelection(patientSurvey, patientSurvey.CurrentQuestion, singleResponse);
+            bool isValid = SmsValidation.validSingleSelection(patientSurvey, patientSurvey.GetCurrentQuestion().PatientSurveyQuestionId, singleResponse);
             if (isValid)
             {
-                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+                PatientResponseApiPostModel patientResponse = MakePostModelForResponseToQuestion(patientSurvey.GetCurrentQuestion(), patientSurvey.GetPatient());
                 PatientResponseValueApiPostModel singleResponseModel = new PatientResponseValueApiPostModel();
                 singleResponseModel.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.Survey;
-                singleResponseModel.PatientSurveyOptionId =patientSurvey.FetchOptionCodeForResponseValue(singleResponse);
+                singleResponseModel.PatientSurveyOptionId =FetchOptionCodeForResponseValue(patientSurvey.GetCurrentQuestion(),singleResponse);
                 patientResponse.PatientResponseValues.Add(singleResponseModel);
+
                 IvrService vivifyService = new IvrService();
+                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));
                 return vivifyService.PostPatientResponse(patientResponse);
             }
 
@@ -56,7 +119,7 @@ namespace SMSClient.Components
         }
 
         #region questionable handling function
-        public static PatientResponseApiPostModel HandleNumberResponse(SurveyInstance patientSurvey, ResponseModel response)
+        private static PatientResponseApiPostModel HandleNumberResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             string number = response.ResponseText;
 
@@ -64,7 +127,7 @@ namespace SMSClient.Components
 
             if (isValid)
             {
-                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+                PatientResponseApiPostModel patientResponse = MakePostModelForResponseToQuestion(patientSurvey.GetCurrentQuestion(), patientSurvey.GetPatient());
 
                 PatientResponseValueApiPostModel NumberResponse = new PatientResponseValueApiPostModel();
                 NumberResponse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.ReadingType;//not sure about this
@@ -72,6 +135,7 @@ namespace SMSClient.Components
                 patientResponse.PatientResponseValues.Add(NumberResponse);
 
                 IvrService vivifyService = new IvrService();
+                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));
                 return vivifyService.PostPatientResponse(patientResponse);
             }
 
@@ -79,7 +143,7 @@ namespace SMSClient.Components
         }
         #endregion
 
-        public static PatientResponseApiPostModel HandlePulseOxResponse(SurveyInstance patientSurvey, ResponseModel response)
+        private static PatientResponseApiPostModel HandlePulseOxResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             char[] delimitors = { ' ', ',' };
             string[] parts = response.ResponseText.Split(delimitors);
@@ -96,7 +160,7 @@ namespace SMSClient.Components
 
             if (isValid)
             {
-                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+                PatientResponseApiPostModel patientResponse = MakePostModelForResponseToQuestion(patientSurvey.GetCurrentQuestion(), patientSurvey.GetPatient());
 
                 // Add Heart Rate Value
                 PatientResponseValueApiPostModel hearRateResonse = new PatientResponseValueApiPostModel();
@@ -111,13 +175,14 @@ namespace SMSClient.Components
                 patientResponse.PatientResponseValues.Add(OxygenResonse);
 
                 IvrService vivifyService = new IvrService();
+                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));
                 return vivifyService.PostPatientResponse(patientResponse);
             }
 
             return null;
         }
 
-        public static PatientResponseApiPostModel HandleWeightResponse(SurveyInstance patientSurvey, ResponseModel response)
+        private static PatientResponseApiPostModel HandleWeightResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             string weight = response.ResponseText;
 
@@ -125,7 +190,7 @@ namespace SMSClient.Components
 
             if (isValid)
             {
-                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+                PatientResponseApiPostModel patientResponse = MakePostModelForResponseToQuestion(patientSurvey.GetCurrentQuestion(), patientSurvey.GetPatient());
 
                 PatientResponseValueApiPostModel WeightResponse = new PatientResponseValueApiPostModel();
                 WeightResponse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.Weight;
@@ -133,13 +198,14 @@ namespace SMSClient.Components
                 patientResponse.PatientResponseValues.Add(WeightResponse);
 
                 IvrService vivifyService = new IvrService();
+                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));
                 return vivifyService.PostPatientResponse(patientResponse);
             }
 
             return null;
         }
 
-        public static PatientResponseApiPostModel HandleBloodPressureResponse(SurveyInstance patientSurvey, ResponseModel response)
+        private static PatientResponseApiPostModel HandleBloodPressureResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             char[] delimitors = { ' ', ',' };
             string[] parts = response.ResponseText.Split(delimitors);
@@ -156,7 +222,7 @@ namespace SMSClient.Components
 
             if (isValid)
             {
-                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+                PatientResponseApiPostModel patientResponse = MakePostModelForResponseToQuestion(patientSurvey.GetCurrentQuestion(), patientSurvey.GetPatient());
 
                 // Add systolic
                 PatientResponseValueApiPostModel systolicResponse = new PatientResponseValueApiPostModel();
@@ -171,13 +237,14 @@ namespace SMSClient.Components
                 patientResponse.PatientResponseValues.Add(diastolicResponse);
 
                 IvrService vivifyService = new IvrService();
+                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));
                 return vivifyService.PostPatientResponse(patientResponse);
             }
 
             return null;
         }
 
-        public static PatientResponseApiPostModel HandleBloodSugarResponse(SurveyInstance patientSurvey, ResponseModel response)
+        private static PatientResponseApiPostModel HandleBloodSugarResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             string bloodsugarResponse = response.ResponseText;
 
@@ -185,7 +252,7 @@ namespace SMSClient.Components
 
             if (isValid)
             {
-                PatientResponseApiPostModel patientResponse = patientSurvey.MakePostModelForResponseToCurrentQuestion();
+                PatientResponseApiPostModel patientResponse = MakePostModelForResponseToQuestion(patientSurvey.GetCurrentQuestion(), patientSurvey.GetPatient());
 
                 PatientResponseValueApiPostModel BloodSugarResponse = new PatientResponseValueApiPostModel();
                 BloodSugarResponse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.BloodSugar;
@@ -193,10 +260,65 @@ namespace SMSClient.Components
                 patientResponse.PatientResponseValues.Add(BloodSugarResponse);
 
                 IvrService vivifyService = new IvrService();
+                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));
                 return vivifyService.PostPatientResponse(patientResponse);
             }
 
             return null;
         }
+
+        private static int FetchOptionCodeForResponseValue(PatientSurveyQuestionModel patientQuestion, string value)//returns option code for a response string.
+        {
+            int retval = -1;
+            value = value.Trim();
+            List<PatientSurveyOptionModel> currentq = patientQuestion.PatientSurveyOptions;
+            int opcount = 1;
+            foreach (PatientSurveyOptionModel item in currentq)
+            {
+                bool matchesthisoption = false;
+                foreach (PatientSurveyOptionTextModel text in item.PatientSurveyOptionTexts)
+                {
+                    if (string.Compare(value, text.Text, true) == 0)
+                    {
+                        matchesthisoption = true;
+                        break;
+                    }
+                }
+                if (opcount.ToString().Equals(value))
+                {
+                    matchesthisoption = true;
+                }
+                if (matchesthisoption)
+                {
+                    retval = item.PatientSurveyOptionId;
+                    break;
+                }
+                opcount++;
+            }
+            return retval;
+        }
+
+        private static PatientResponseApiPostModel MakePostModelForResponseToQuestion(PatientSurveyQuestionModel currentQuestion, PatientModel patient)//will populate with appropriate PatientResponseValueApiPostModel with empty PatientResponseValues
+        {
+            PatientResponseApiPostModel output = new PatientResponseApiPostModel();
+            output.PatientId = patient.Id;
+            output.PatientSurveyQuestionId = currentQuestion.PatientSurveyQuestionId;
+            output.SurveyQuestionTypeId = currentQuestion.SurveyQuestionTypeId;
+            output.PatientResponseInputMethodId = 1;
+            output.ObservationDateTime_UTC = System.DateTime.Now;
+            output.PatientResponseValues = new List<PatientResponseValueApiPostModel>();
+
+            return output;
+        }
+        private static List<int?> MakePatientSelectionDescriptorFromPostModel(PatientResponseApiPostModel input)
+        {
+            List<int?> retval = new List<int?>();
+            foreach (PatientResponseValueApiPostModel entry in input.PatientResponseValues)
+            {
+                retval.Add(entry.PatientSurveyOptionId);
+            }
+            return retval;
+        }
+
     }
 }

@@ -9,6 +9,19 @@ namespace SMSClient.Components
 {
     public class SmsValidation
     {
+        private const int MINbloodSugar = 0;
+        private const int MAXbloodSugar = 2000;
+        private const int MINoxygen = 0;
+        private const int MAXoxygen = 100;
+        private const int MINheartRate = 0;
+        private const int MAXheartRage = 400;
+        private const int MINweight = 0;
+        private const int MAXweight = int.MaxValue;
+        private const int MINsystolic = 0;
+        private const int MAXsystolic = int.MaxValue;
+        private const int MINdiastolic = 0;
+        private const int MAXdiastolic = int.MaxValue;
+
         internal static bool validBloodSugarResponse(string patientResponse)
         {
             bool valid = false;
@@ -21,7 +34,7 @@ namespace SMSClient.Components
                 {
                     bloodSugar = int.Parse(patientResponse);
 
-                    if (bloodSugar >= 0 && bloodSugar <= 2000)
+                    if (bloodSugar >= MINbloodSugar && bloodSugar <= MAXbloodSugar)
                     {
                         valid = true;
                     }
@@ -43,7 +56,7 @@ namespace SMSClient.Components
                 ox = int.Parse(oxygen);
                 rate = int.Parse(heartRate);
 
-                if ((ox >= 0 && ox <= 100) && (rate >= 0 && rate <= 400 ))
+                if ((ox >= MINoxygen && ox <= MAXoxygen) && (rate >= MINheartRate && rate <= MAXheartRage))
                 {
                     valid = true;
                 }
@@ -64,7 +77,7 @@ namespace SMSClient.Components
                 {
                     weightResponse = int.Parse(weight);
 
-                    if (weightResponse >= 0)
+                    if (weightResponse >= MINweight && weightResponse <= MAXweight)
                     {
                         valid = true;
                     }
@@ -87,7 +100,7 @@ namespace SMSClient.Components
                 systoleResponse = int.Parse(systole);
                 diastoleResponse = int.Parse(diastole);
 
-                if ((systoleResponse >= 0) && (diastoleResponse >= 0))
+                if ((systoleResponse >= MINsystolic) && (systoleResponse <= MAXsystolic) && (diastoleResponse >= MINdiastolic) && (diastoleResponse <= MAXdiastolic))
                 {
                     valid = true;
                 }

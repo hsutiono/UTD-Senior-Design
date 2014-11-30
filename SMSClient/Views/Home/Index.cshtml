@@ -18,7 +18,7 @@
             int val = 5;
             if(int.TryParse(user,out val))
             {
-                ViewBag.reg[number] = new SMSClient.Models.SurveyInstance(val,number);
+                ViewBag.reg[number] = new SMSClient.Models.SurveyInstance(number,val);
             }
         }
     }
