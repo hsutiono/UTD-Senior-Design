@@ -1,29 +1,19 @@
-﻿using System;
+﻿using SMSClient.Components;
+using SMSClient.Integration;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using Twilio;
-using SMSClient.Models;
-using System.Web.Mvc.Html;
-using RestSharp;
-using System.Net;
-using Twilio.Mvc;
-using Twilio.TwiML;
-using SMSClient.Components;
-using SMSClient.Integration;
 
 namespace SMSClient.Models
 {
-    public class StackSurveyInstance
-    {
+    public class SingleModelSurveyInstance
+    {//Keep this in case PatientComponent.GetNextSurveyQuestion is preferable.
         private bool surveyStarted;
-        public int userID;
-        public string phone;
-        PatientModel patient = null;
-        Stack<PatientSurveyQuestionModel> ActiveQuestion = new Stack<PatientSurveyQuestionModel>();
+        private int userID;
+        private string phone;
+        private PatientModel patient = null;
+        private PatientSurveyQuestionModel CurrentQuestionModel = null;
 
-        public StackSurveyInstance(string _phone, int? _userID = null )
+        public SingleModelSurveyInstance(string _phone, int? _userID = null )
         {
             this.phone = _phone;
             TwilioService firstSend = new TwilioService();
@@ -46,12 +36,11 @@ namespace SMSClient.Models
         }
         public PatientSurveyQuestionModel GetCurrentQuestion()
         {
-            return ActiveQuestion.First();
+            return CurrentQuestionModel;
         }
-
         public void StartSurvey()
         {
-            if(ActiveQuestion.Count==0)
+            if(CurrentQuestionModel==null)
             {
                 fetchData();
             }
@@ -68,35 +57,36 @@ namespace SMSClient.Models
                 //get patient data
                 patient = PatientComponent.GetPatient(userID);
             }
-            if (ActiveQuestion.Count == 0)
+            if(CurrentQuestionModel == null)
             {
                 //get question model.
-                ActiveQuestion.Push(PatientComponent.GetNextSurveyQuestion(GetPatient().Id, -1, null));// what is a good null value here?
+                CurrentQuestionModel = PatientComponent.GetNextSurveyQuestion(GetPatient().Id, -1, null);// what is a good null value here?
             }
         }
         public bool NextQuestion(List<int?> currentPatientSurveyOptionIds)
         {
+            PatientSurveyQuestionModel nextbasequestion = PatientComponent.GetNextSurveyQuestion(GetPatient().Id, GetCurrentQuestion().PatientSurveyQuestionId, currentPatientSurveyOptionIds);
             List<PatientSurveyOptionModel> optionsselected = new List<PatientSurveyOptionModel>();
-            foreach(PatientSurveyOptionModel item in GetCurrentQuestion().PatientSurveyOptions)
+            foreach(PatientSurveyOptionModel item in CurrentQuestionModel.PatientSurveyOptions)
             {
                 if(currentPatientSurveyOptionIds.Contains(item.PatientSurveyOptionId))
                 {
                     optionsselected.Add(item);
                 }
             }
-            if(optionsselected.Count==0)
+            if(optionsselected.Count!=0)
             {
-                ActiveQuestion.Pop();
-                if(ActiveQuestion.Count<=0)
-                    ActiveQuestion.Push(PatientComponent.GetNextSurveyQuestion(GetPatient().Id, GetCurrentQuestion().PatientSurveyQuestionId, currentPatientSurveyOptionIds));
+                CurrentQuestionModel = optionsselected.FirstOrDefault().PatientSurveyQuestions.FirstOrDefault();
             }
             else
             {
-                ActiveQuestion.Pop();
-                if (ActiveQuestion.Count <= 0)
-                    ActiveQuestion.Push(PatientComponent.GetNextSurveyQuestion(GetPatient().Id, GetCurrentQuestion().PatientSurveyQuestionId, currentPatientSurveyOptionIds));
+                CurrentQuestionModel = nextbasequestion;
             }
-            return ActiveQuestion.Count!=0;
+            if(CurrentQuestionModel==null)
+            {
+                CurrentQuestionModel = nextbasequestion;
+            }
+            return CurrentQuestionModel!=null;
         }
     }
 }

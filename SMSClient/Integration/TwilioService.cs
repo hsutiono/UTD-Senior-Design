@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using NLog;
 using System.Net;
-using System.Text;
-using NLog;
-using RestSharp;
-using RestSharp.Deserializers;
-using SMSClient.Models;
 using Twilio;
 
 namespace SMSClient.Integration

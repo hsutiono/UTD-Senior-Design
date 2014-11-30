@@ -1,33 +1,24 @@
-﻿using System;
+﻿using SMSClient.Components;
+using SMSClient.Integration;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using Twilio;
-using SMSClient.Models;
-using System.Web.Mvc.Html;
-using RestSharp;
-using System.Net;
-using Twilio.Mvc;
-using Twilio.TwiML;
-using SMSClient.Components;
-using SMSClient.Integration;
 
 namespace SMSClient.Models
 {
     public class SurveyInstance
     {
+        private const string Greeting = "Are you ready to take your survey?";
         private bool surveyStarted;
-        public int userID;
-        public string phone;
-        PatientModel patient = null;
-        PatientSurveyQuestionModel CurrentQuestionModel = null;
+        private int userID;
+        private string phone;
+        private PatientModel patient = null;
+        private Stack<PatientSurveyQuestionModel> ActiveQuestion = new Stack<PatientSurveyQuestionModel>();
 
         public SurveyInstance(string _phone, int? _userID = null )
         {
             this.phone = _phone;
             TwilioService firstSend = new TwilioService();
-            firstSend.SendMessage(phone, "Are you ready to take your survey?");
+            firstSend.SendMessage(phone, Greeting);
             if (_userID != null)
             {
                 this.userID = _userID.GetValueOrDefault();
@@ -46,12 +37,18 @@ namespace SMSClient.Models
         }
         public PatientSurveyQuestionModel GetCurrentQuestion()
         {
-            return CurrentQuestionModel;
+            if (ActiveQuestion.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                return ActiveQuestion.Peek();
+            }
         }
-
         public void StartSurvey()
         {
-            if(CurrentQuestionModel==null)
+            if(ActiveQuestion.Count==0 && !surveyStarted)
             {
                 fetchData();
             }
@@ -65,39 +62,46 @@ namespace SMSClient.Models
         {
             if(patient == null)
             {
-                //get patient data
-                patient = PatientComponent.GetPatient(userID);
+                patient = PatientComponent.GetPatient(userID);//get patient data
             }
-            if(CurrentQuestionModel == null)
+            if (ActiveQuestion.Count == 0 && !surveyStarted)
             {
-                //get question model.
-                CurrentQuestionModel = PatientComponent.GetNextSurveyQuestion(GetPatient().Id, -1, null);// what is a good null value here?
+                List<PatientSurveyQuestionModel> questions = PatientComponent.GetPatientSurveyQuestionsForToday(GetPatient().Id).ToList();
+                for(int i = questions.Count-1;i>=0;i--)
+                {
+                    ActiveQuestion.Push(questions[i]);//push them to stack in reverse order.
+                }
             }
         }
         public bool NextQuestion(List<int?> currentPatientSurveyOptionIds)
         {
-            PatientSurveyQuestionModel nextbasequestion = PatientComponent.GetNextSurveyQuestion(GetPatient().Id, GetCurrentQuestion().PatientSurveyQuestionId, currentPatientSurveyOptionIds);
             List<PatientSurveyOptionModel> optionsselected = new List<PatientSurveyOptionModel>();
-            foreach(PatientSurveyOptionModel item in CurrentQuestionModel.PatientSurveyOptions)
+            if (currentPatientSurveyOptionIds != null)
             {
-                if(currentPatientSurveyOptionIds.Contains(item.PatientSurveyOptionId))
+                foreach (PatientSurveyOptionModel item in GetCurrentQuestion().PatientSurveyOptions)
                 {
-                    optionsselected.Add(item);
+                    if (currentPatientSurveyOptionIds.Contains(item.PatientSurveyOptionId))
+                    {
+                        optionsselected.Add(item);
+                    }
                 }
             }
-            if(optionsselected.Count!=0)
+            if(optionsselected.Count==0)
             {
-                CurrentQuestionModel = optionsselected.FirstOrDefault().PatientSurveyQuestions.FirstOrDefault();
+                ActiveQuestion.Pop();
             }
             else
             {
-                CurrentQuestionModel = nextbasequestion;
+                PatientSurveyQuestionModel prevquestion = ActiveQuestion.Pop();
+                foreach(PatientSurveyOptionModel item in optionsselected)
+                {
+                    foreach(PatientSurveyQuestionModel jtem in item.PatientSurveyQuestions)
+                    {
+                        ActiveQuestion.Push(jtem);
+                    }
+                }
             }
-            if(CurrentQuestionModel==null)
-            {
-                CurrentQuestionModel = nextbasequestion;
-            }
-            return CurrentQuestionModel!=null;
+            return ActiveQuestion.Count!=0;
         }
     }
 }

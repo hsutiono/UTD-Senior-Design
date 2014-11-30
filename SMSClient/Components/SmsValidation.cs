@@ -1,9 +1,7 @@
-﻿using System;
+﻿using SMSClient.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-
-using SMSClient.Models;
 
 namespace SMSClient.Components
 {

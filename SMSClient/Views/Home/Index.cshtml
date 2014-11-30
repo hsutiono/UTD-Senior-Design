@@ -20,6 +20,10 @@
             {
                 ViewBag.reg[number] = new SMSClient.Models.SurveyInstance(number,val);
             }
+            else
+            {
+                ViewBag.reg[number] = new SMSClient.Models.SurveyInstance(number);
+            }
         }
     }
 }

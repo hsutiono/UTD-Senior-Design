@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using SMSClient.Integration;
+﻿using SMSClient.Integration;
 using SMSClient.Models;
+using System;
+using System.Collections.Generic;
 
 namespace SMSClient.Components
 {
@@ -56,6 +54,11 @@ namespace SMSClient.Components
                                     serverresponse = HandleMultiSelectionResponse(patientSurvey, response);
                                     break;
                                 }
+                            default:
+                                {
+                                    serverresponse = new PatientResponseApiPostModel(); // do nothing
+                                    break;
+                                }
                         }
                     }
                     catch (Integration.HttpResponseException e)
@@ -63,12 +66,10 @@ namespace SMSClient.Components
                         Console.WriteLine(e.StackTrace);
                         serverresponse = new PatientResponseApiPostModel();//ignore case
                     };
-
                 }
             }
             return serverresponse;
         }
-
         private static PatientResponseApiPostModel HandleMultiSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             char[] delimitors = { ' ', ',' };
@@ -96,7 +97,6 @@ namespace SMSClient.Components
             }
             return null;
         }
-
         private static PatientResponseApiPostModel HandleSingleSelectionResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             string singleResponse = response.ResponseText;
@@ -111,14 +111,12 @@ namespace SMSClient.Components
                 patientResponse.PatientResponseValues.Add(singleResponseModel);
 
                 IvrService vivifyService = new IvrService();
-                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));
+                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));//Advance Question to the next question now, based on the patient response
                 return vivifyService.PostPatientResponse(patientResponse);
             }
 
             return null;
         }
-
-        #region questionable handling function
         private static PatientResponseApiPostModel HandleNumberResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             string number = response.ResponseText;
@@ -135,14 +133,12 @@ namespace SMSClient.Components
                 patientResponse.PatientResponseValues.Add(NumberResponse);
 
                 IvrService vivifyService = new IvrService();
-                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));
+                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));//Advance Question to the next question now, based on the patient response
                 return vivifyService.PostPatientResponse(patientResponse);
             }
 
             return null;
         }
-        #endregion
-
         private static PatientResponseApiPostModel HandlePulseOxResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             char[] delimitors = { ' ', ',' };
@@ -175,13 +171,12 @@ namespace SMSClient.Components
                 patientResponse.PatientResponseValues.Add(OxygenResonse);
 
                 IvrService vivifyService = new IvrService();
-                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));
+                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));//Advance Question to the next question now, based on the patient response
                 return vivifyService.PostPatientResponse(patientResponse);
             }
 
             return null;
         }
-
         private static PatientResponseApiPostModel HandleWeightResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             string weight = response.ResponseText;
@@ -198,13 +193,12 @@ namespace SMSClient.Components
                 patientResponse.PatientResponseValues.Add(WeightResponse);
 
                 IvrService vivifyService = new IvrService();
-                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));
+                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));//Advance Question to the next question now, based on the patient response
                 return vivifyService.PostPatientResponse(patientResponse);
             }
 
             return null;
         }
-
         private static PatientResponseApiPostModel HandleBloodPressureResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             char[] delimitors = { ' ', ',' };
@@ -237,13 +231,12 @@ namespace SMSClient.Components
                 patientResponse.PatientResponseValues.Add(diastolicResponse);
 
                 IvrService vivifyService = new IvrService();
-                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));
+                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));//Advance Question to the next question now, based on the patient response
                 return vivifyService.PostPatientResponse(patientResponse);
             }
 
             return null;
         }
-
         private static PatientResponseApiPostModel HandleBloodSugarResponse(SurveyInstance patientSurvey, ResponseModel response)
         {
             string bloodsugarResponse = response.ResponseText;
@@ -260,13 +253,12 @@ namespace SMSClient.Components
                 patientResponse.PatientResponseValues.Add(BloodSugarResponse);
 
                 IvrService vivifyService = new IvrService();
-                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));
+                patientSurvey.NextQuestion(MakePatientSelectionDescriptorFromPostModel(patientResponse));//Advance Question to the next question now, based on the patient response
                 return vivifyService.PostPatientResponse(patientResponse);
             }
 
             return null;
         }
-
         private static int FetchOptionCodeForResponseValue(PatientSurveyQuestionModel patientQuestion, string value)//returns option code for a response string.
         {
             int retval = -1;
@@ -297,7 +289,6 @@ namespace SMSClient.Components
             }
             return retval;
         }
-
         private static PatientResponseApiPostModel MakePostModelForResponseToQuestion(PatientSurveyQuestionModel currentQuestion, PatientModel patient)//will populate with appropriate PatientResponseValueApiPostModel with empty PatientResponseValues
         {
             PatientResponseApiPostModel output = new PatientResponseApiPostModel();
@@ -311,7 +302,7 @@ namespace SMSClient.Components
             return output;
         }
         private static List<int?> MakePatientSelectionDescriptorFromPostModel(PatientResponseApiPostModel input)
-        {
+        {// PatientComponent.GetNextQuestion requires patient response values in this specific format.
             List<int?> retval = new List<int?>();
             foreach (PatientResponseValueApiPostModel entry in input.PatientResponseValues)
             {
