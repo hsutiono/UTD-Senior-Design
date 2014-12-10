@@ -34,14 +34,9 @@ namespace SMSClient.Components
                     }
                     else
                     {
-                        if (!patientSurvey.SurveyStarted() || QuestionIsOptionless(patientSurvey.GetCurrentQuestion()))
+                        if (!patientSurvey.SurveyStarted())
                         {
                             retVal = PlayQuestion(patientSurvey, response);
-                            if (QuestionIsOptionless(patientSurvey.GetCurrentQuestion()))
-                            {
-                                retVal += CONTINUE_MSG;
-                                patientSurvey.NextQuestion(null);
-                            }
                         }
                         else
                         {
@@ -49,6 +44,11 @@ namespace SMSClient.Components
                             if (success)
                             {
                                 retVal = PlayQuestion(patientSurvey, response);
+                                if (QuestionIsOptionless(patientSurvey.GetCurrentQuestion()))
+                                {
+                                    retVal += CONTINUE_MSG;
+                                    patientSurvey.NextQuestion(null);
+                                }
                             }
                             else
                             {
