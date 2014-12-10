@@ -10,6 +10,12 @@ namespace SMSClient.Controllers
     {
         public static Dictionary<string, SurveyInstance> reg = new Dictionary<string, SurveyInstance>();
 
+        public static Dictionary<string, int> ScheduledPatients = new Dictionary<string, int>()
+            {// populate this list with all valid phone numbers and corresponding user numbers
+                {"+12817813990",7},
+                {"+19729630930",5}
+            };
+
         public ActionResult Index()
         {
             ViewBag.reg = reg;
@@ -34,6 +40,14 @@ namespace SMSClient.Controllers
                 ViewBag.responseText = "Something has gone wrong. ";
             }
 
+            return View();
+        }
+        public ActionResult StartSurvey()
+        {
+            foreach(string item in ScheduledPatients.Keys)
+            {
+                reg[item] = new SurveyInstance(item, ScheduledPatients[item]);
+            }
             return View();
         }
     }
