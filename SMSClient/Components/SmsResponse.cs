@@ -53,7 +53,16 @@ namespace SMSClient.Components
                         }
                         else
                         {
-                            retVal = RETRY_PREFIX + PlayQuestion(patientSurvey, response);
+                            retVal = PlayQuestion(patientSurvey, response);
+                            if (retVal.Equals(EXIT_MSG))
+                            {
+                                data.Remove(response.From);
+                            }
+                            else
+                            {
+                                retVal = RETRY_PREFIX + retVal;
+                            }
+
                         }
                     }
                 }

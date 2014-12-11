@@ -221,13 +221,13 @@ namespace SMSClient.Components
                 // Add systolic
                 PatientResponseValueApiPostModel systolicResponse = new PatientResponseValueApiPostModel();
                 systolicResponse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.Systolic; // 
-                systolicResponse.Value = diastole;
+                systolicResponse.Value = systole;
                 patientResponse.PatientResponseValues.Add(systolicResponse);
 
                 // Add diastolic
                 PatientResponseValueApiPostModel diastolicResponse = new PatientResponseValueApiPostModel();
                 diastolicResponse.SurveyParameterTypeId = (int)SurveyParameterTypeEnum.Diastolic; // 
-                diastolicResponse.Value = systole;
+                diastolicResponse.Value = diastole;
                 patientResponse.PatientResponseValues.Add(diastolicResponse);
 
                 IvrService vivifyService = new IvrService();
