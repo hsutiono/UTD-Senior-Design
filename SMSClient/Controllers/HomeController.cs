@@ -2,17 +2,21 @@
 using SMSClient.Models;
 using System.Collections.Generic;
 using System.Web.Mvc;
+using System.Collections.Concurrent;
 
 namespace SMSClient.Controllers
 {
 
     public class HomeController : Controller
     {
-        public static Dictionary<string, SurveyInstance> reg = new Dictionary<string, SurveyInstance>();
+        public static ConcurrentDictionary<string, SurveyInstance> reg = new ConcurrentDictionary<string, SurveyInstance>();
 
         public static Dictionary<string, int> ScheduledPatients = new Dictionary<string, int>()
             {// populate this list with all valid phone numbers and corresponding user numbers
                 {"+12817813990",7},
+                {"+14093546970",6},
+                {"+12148548186",3},
+                {"+12062889006",1},
                 {"+19729630930",5}
             };
 

@@ -75,6 +75,10 @@ namespace SMSClient.Models
         }
         public bool NextQuestion(List<int?> currentPatientSurveyOptionIds)
         {
+            if(ActiveQuestion.Count==0)
+            {
+                return false;
+            }
             List<PatientSurveyOptionModel> optionsselected = new List<PatientSurveyOptionModel>();
             if (currentPatientSurveyOptionIds != null)
             {

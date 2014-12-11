@@ -1,4 +1,5 @@
 ﻿using SMSClient.Models;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,7 +19,7 @@ namespace SMSClient.Components
         private const string BLOODSUGAR_MSG = "Please enter your Blood Sugar Level.";
         private const string WEIGHT_MSG = "Please enter your weight.";
 
-        public static string HandleSmsResponse(ResponseModel response, Dictionary<string, SurveyInstance> data)
+        public static string HandleSmsResponse(ResponseModel response, ConcurrentDictionary<string, SurveyInstance> data)
         {
             string retVal = "";
 
@@ -30,7 +31,8 @@ namespace SMSClient.Components
                     if (patientSurvey.GetCurrentQuestion() == null)
                     {
                         retVal = EXIT_MSG;
-                        data.Remove(response.From);
+                        SurveyInstance g;
+                        data.TryRemove(response.From, out g);
                     }
                     else
                     {
@@ -96,7 +98,11 @@ namespace SMSClient.Components
         }
         private static bool QuestionIsOptionless(PatientSurveyQuestionModel currentQuestion)
         {
-            return currentQuestion.PatientSurveyOptions.Count == 0;
+            if(currentQuestion!=null && currentQuestion.PatientSurveyOptions!=null)
+            {
+                return currentQuestion.PatientSurveyOptions.Count == 0;
+            }
+            return true;
         }
         private static string getFormattedQuestionText(PatientSurveyQuestionModel patientQuestion)
         {
