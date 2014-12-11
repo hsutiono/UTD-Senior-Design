@@ -19,7 +19,7 @@ namespace SMSClient.Components
         private const string BLOODSUGAR_MSG = "Please enter your Blood Sugar Level.";
         private const string WEIGHT_MSG = "Please enter your weight.";
 
-        public static string HandleSmsResponse(ResponseModel response, ConcurrentDictionary<string, SurveyInstance> data)
+        public static string HandleSmsResponse(ResponseModel response, Dictionary<string, SurveyInstance> data)
         {
             string retVal = "";
 
@@ -28,34 +28,32 @@ namespace SMSClient.Components
                 SurveyInstance patientSurvey = data[response.From];
                 if (patientSurvey != null)
                 {
-                    if (patientSurvey.GetCurrentQuestion() == null)
+                    if (!patientSurvey.SurveyStarted())
                     {
-                        retVal = EXIT_MSG;
-                        SurveyInstance g;
-                        data.TryRemove(response.From, out g);
+                        retVal = PlayQuestion(patientSurvey, response);
                     }
                     else
                     {
-                        if (!patientSurvey.SurveyStarted())
+                        bool success = HandleResponse.HandleQuestionResponse(patientSurvey, response) != null;
+                        if (success)
                         {
                             retVal = PlayQuestion(patientSurvey, response);
-                        }
-                        else
-                        {
-                            bool success = HandleResponse.HandleQuestionResponse(patientSurvey, response) != null;
-                            if (success)
+                            if(retVal.Equals(EXIT_MSG))
                             {
-                                retVal = PlayQuestion(patientSurvey, response);
+                                data.Remove(response.From);
+                            }
+                            else
+                            {
                                 if (QuestionIsOptionless(patientSurvey.GetCurrentQuestion()))
                                 {
                                     retVal += CONTINUE_MSG;
                                     patientSurvey.NextQuestion(null);
                                 }
                             }
-                            else
-                            {
-                                retVal = RETRY_PREFIX + PlayQuestion(patientSurvey, response);
-                            }
+                        }
+                        else
+                        {
+                            retVal = RETRY_PREFIX + PlayQuestion(patientSurvey, response);
                         }
                     }
                 }
@@ -91,7 +89,6 @@ namespace SMSClient.Components
                     {
                         retVal = EXIT_MSG;
                     }
-
                 }
             }
             return retVal;
@@ -102,7 +99,7 @@ namespace SMSClient.Components
             {
                 return currentQuestion.PatientSurveyOptions.Count == 0;
             }
-            return true;
+            return false;
         }
         private static string getFormattedQuestionText(PatientSurveyQuestionModel patientQuestion)
         {
