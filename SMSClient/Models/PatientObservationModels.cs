@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace SMSClient.Models
 {
+    [Serializable()]
     public class PatientResponseApiPostModel
     {
         public int PatientId { get; set; }
@@ -15,6 +16,7 @@ namespace SMSClient.Models
         public List<PatientResponseValueApiPostModel> PatientResponseValues { get; set; }
     }
 
+    [Serializable()]
     public class PatientResponseValueApiPostModel
     {
         public int SurveyParameterTypeId { get; set; }
@@ -22,6 +24,7 @@ namespace SMSClient.Models
         public int? PatientSurveyOptionId { get; set; }
     }
 
+    [Serializable()]
     public class PatientResponseModel
     {
         public int PatientResponseId { get; set; }
@@ -69,6 +72,7 @@ namespace SMSClient.Models
         }
     }
 
+    [Serializable()]
     public class PatientResponseValueModel
     {
         public PatientResponseValueModel()
@@ -92,6 +96,7 @@ namespace SMSClient.Models
         public PatientSurveyOptionModel PatientSurveyOption { get; set; }
     }
 
+    [Serializable()]
     public class PatientAlertModel
     {
         public int PatientAlertId { get; set; }

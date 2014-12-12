@@ -2,9 +2,11 @@
 using SMSClient.Integration;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace SMSClient.Models
 {
+    [Serializable()]
     public class SurveyInstance
     {
         private const string Greeting = "Are you ready to take your survey?";

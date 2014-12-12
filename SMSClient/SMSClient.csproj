@@ -186,6 +186,7 @@
     <Compile Include="Integration\IvrDTOs.cs" />
     <Compile Include="Integration\IvrService.cs" />
     <Compile Include="Integration\TwilioService.cs" />
+    <Compile Include="Models\ActiveUserRegistry.cs" />
     <Compile Include="Models\PatientModel.cs" />
     <Compile Include="Models\PatientObservationModels.cs" />
     <Compile Include="Models\ResponseModel.cs" />
@@ -202,6 +203,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="App_Data\SavedRegistry.bin" />
     <None Include="Properties\PublishProfiles\Test.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
@@ -232,9 +234,7 @@
     <Content Include="Views\Home\TwilioResponse.cshtml" />
     <Content Include="Views\Home\StartSurvey.cshtml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />

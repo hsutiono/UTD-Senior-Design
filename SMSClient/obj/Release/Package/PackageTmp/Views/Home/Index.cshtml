@@ -5,26 +5,8 @@
     {
         string number = Request.Form["phone"];
         string user = Request.Form["user"];
-        
-        if (number.Length == 10)
-        {
-            if(number.Substring(0, 2) != "+1")
-            {
-                number = "+1" + number;
-            }
-        }
-        if(number.Length == 12)
-        {
-            int val = 5;
-            if(int.TryParse(user,out val))
-            {
-                ViewBag.reg[number] = new SMSClient.Models.SurveyInstance(number,val);
-            }
-            else
-            {
-                ViewBag.reg[number] = new SMSClient.Models.SurveyInstance(number);
-            }
-        }
+
+        SMSClient.Controllers.HomeController.AddUser(number, user);
     }
 }
 

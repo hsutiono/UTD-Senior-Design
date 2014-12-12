@@ -6,7 +6,7 @@ namespace SMSClient.Integration
 {
     public class TwilioService:TwilioRestClient //interface with Twilio API
     {
-        public bool enable = false;//for testing
+        public bool enable = true;//for testing
         private const string DefaultServerPhone = "+17743077070";
         private const string DefaultAccountId = "AC7a6db27538ba8ed863c14e825beb35f4";
         private const string DefaultAuthtoken = "56cb022777274d5e98fdeed9523987a7";

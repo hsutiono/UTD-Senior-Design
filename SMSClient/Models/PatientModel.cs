@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace SMSClient.Models
 {
+    [Serializable()]
     public class PatientModel
     {
         public int Id { get; set; }
@@ -137,6 +138,7 @@ namespace SMSClient.Models
         }
     }
 
+    [Serializable()]
     public class PatientSurveyModel
     {
         public int PatientSurveyId { get; set; }
@@ -152,6 +154,7 @@ namespace SMSClient.Models
         public PatientSurveyScheduleModel PatientSurveyScheduleModel { get; set; }
     }
 
+    [Serializable()]
     public class PatientSurveyOptionTextModel
     {
         public int PatientSurveyOptionTextId { get; set; }
@@ -166,6 +169,7 @@ namespace SMSClient.Models
         public int? DeletedBy_Id { get; set; }
     }
 
+    [Serializable()]
     public class PatientSurveyOptionModel
     {
         public PatientSurveyOptionModel()
@@ -189,6 +193,7 @@ namespace SMSClient.Models
         public List<PatientSurveyQuestionModel> PatientSurveyQuestions { get; set; } //child questions
     }
 
+    [Serializable()]
     public class PatientSurveyQuestionTextModel
     {
         public int PatientSurveyQuestionTextId { get; set; }
@@ -203,26 +208,27 @@ namespace SMSClient.Models
         public int? DeletedBy_Id { get; set; }
     }
 
+    [Serializable()]
     public class PatientSurveyQuestionModel
     {
         public static void clone(PatientSurveyQuestionModel src, PatientSurveyQuestionModel tgt)
         {
-            tgt.PatientSurveyQuestionId     =src.PatientSurveyQuestionId;
-            tgt.SurveyQuestionTypeId        =src.SurveyQuestionTypeId;    
-            tgt.SurveyQuestionTypeName      =src.SurveyQuestionTypeName;      
-            tgt.PatientSurveyId             =src.PatientSurveyId;     
-            tgt.SortOrder                   =src.SortOrder;            
-            tgt.SurveyQuestionCategoryId    =src.SurveyQuestionCategoryId;   
-            tgt.DisplayCondition            =src.DisplayCondition;   
-            tgt.ParentPatientSurveyOptionId =src.ParentPatientSurveyOptionId;
-            tgt.CreatedDateTime_UTC         =src.CreatedDateTime_UTC;
-            tgt.CreatedBy_Id                =src.CreatedBy_Id;        
+            tgt.PatientSurveyQuestionId = src.PatientSurveyQuestionId;
+            tgt.SurveyQuestionTypeId = src.SurveyQuestionTypeId;
+            tgt.SurveyQuestionTypeName = src.SurveyQuestionTypeName;
+            tgt.PatientSurveyId = src.PatientSurveyId;
+            tgt.SortOrder = src.SortOrder;
+            tgt.SurveyQuestionCategoryId = src.SurveyQuestionCategoryId;
+            tgt.DisplayCondition = src.DisplayCondition;
+            tgt.ParentPatientSurveyOptionId = src.ParentPatientSurveyOptionId;
+            tgt.CreatedDateTime_UTC = src.CreatedDateTime_UTC;
+            tgt.CreatedBy_Id = src.CreatedBy_Id;
             //tgt.DateTimeDeletedDateTime_UTC =src.DateTimeDeletedDateTime_UTC;
-            tgt.DeletedBy_Id                =src.DeletedBy_Id;         
-            tgt.PatientSurvey               =src.PatientSurvey;              
-            tgt.PatientSurveyOptions        =src.PatientSurveyOptions;       
-            tgt.PatientSurveyQuestionTexts  =src.PatientSurveyQuestionTexts;
-            tgt.ParentSurveyOption          =src.ParentSurveyOption;
+            tgt.DeletedBy_Id = src.DeletedBy_Id;
+            tgt.PatientSurvey = src.PatientSurvey;
+            tgt.PatientSurveyOptions = src.PatientSurveyOptions;
+            tgt.PatientSurveyQuestionTexts = src.PatientSurveyQuestionTexts;
+            tgt.ParentSurveyOption = src.ParentSurveyOption;
         }
         public int PatientSurveyQuestionId { get; set; }
         public int SurveyQuestionTypeId { get; set; }
@@ -276,6 +282,7 @@ namespace SMSClient.Models
         }
     }
 
+    [Serializable()]
     public class PatientSurveyScheduleModel
     {
         public PatientSurveyScheduleModel()
@@ -336,6 +343,7 @@ namespace SMSClient.Models
         MultiSelection = 7
     }
 
+    [Serializable()]
     public class ActiveDaysOfWeek
     {
         public bool IsSunday { get; set; }

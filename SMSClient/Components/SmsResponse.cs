@@ -19,13 +19,13 @@ namespace SMSClient.Components
         private const string BLOODSUGAR_MSG = "Please enter your Blood Sugar Level.";
         private const string WEIGHT_MSG = "Please enter your weight.";
 
-        public static string HandleSmsResponse(ResponseModel response, Dictionary<string, SurveyInstance> data)
+        public static string HandleSmsResponse(ResponseModel response, ActiveUserRegistry data)
         {
             string retVal = "";
 
-            if ( response != null && response.From!=null && data.Keys.Contains(response.From))
+            if ( response != null && response.From!=null && data.GetKeys().Contains(response.From))
             {
-                SurveyInstance patientSurvey = data[response.From];
+                SurveyInstance patientSurvey = data.Get(response.From);
                 if (patientSurvey != null)
                 {
                     if (!patientSurvey.SurveyStarted())
